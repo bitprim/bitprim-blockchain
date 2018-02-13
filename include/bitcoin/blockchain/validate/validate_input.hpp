@@ -40,8 +40,11 @@ public:
     static code convert_result(consensus::verify_result_type result);
 #endif
 
+    // static code verify_script(const chain::transaction& tx,
+    //     uint32_t input_index, uint32_t forks, bool use_libconsensus, bool bitcoin_cash = false);
+
     static code verify_script(const chain::transaction& tx,
-        uint32_t input_index, uint32_t forks, bool use_libconsensus, bool bitcoin_cash = false);
+        uint32_t input_index, uint32_t forks, bool use_libconsensus);
 };
 
 } // namespace blockchain

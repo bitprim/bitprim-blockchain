@@ -52,11 +52,14 @@ uint32_t validate_input::convert_flags(uint32_t native_forks)
     if (script::is_enabled(native_forks, rule_fork::bip112_rule))
         flags |= verify_flags_checksequenceverify;
 
+#ifdef BITPRIM_CURRENCY_BCH
     if (script::is_enabled(native_forks, rule_fork::cash_low_s_rule)){
         // Obligatory flags used on the Nov 13Th - 2017 Bitcoin Cash HF
         flags |= verify_flags_low_s;
         flags |= verify_flags_nulldummy;
     }
+#endif //BITPRIM_CURRENCY_BCH
+
 
     return flags;
 }
@@ -137,10 +140,10 @@ code validate_input::convert_result(verify_result_type result)
 
 // TODO: cache transaction wire serialization.
 code validate_input::verify_script(const transaction& tx, uint32_t input_index,
-    uint32_t branches, bool use_libconsensus, bool bitcoin_cash /* = false */) {
+    uint32_t branches, bool use_libconsensus) {
 
-    // if (!use_libconsensus) {
-    if ( ! bitcoin_cash) {
+    if ( ! use_libconsensus) {
+    // if ( ! bitcoin_cash) {
         ////// Simulate the inefficiency of calling libconsensus.
         ////BITCOIN_ASSERT(input_index < tx.inputs().size());
         ////const auto& prevout = tx.inputs()[input_index].previous_output().validation;
@@ -172,15 +175,15 @@ code validate_input::verify_script(const transaction& tx, uint32_t input_index,
 #else
 
 code validate_input::verify_script(const transaction& tx,
-    uint32_t input_index, uint32_t forks, bool use_libconsensus, bool bitcoin_cash /* = false */) {
+    uint32_t input_index, uint32_t forks, bool use_libconsensus) {
 
     if (use_libconsensus) {
         return error::operation_failed;
     }
 
-    if (bitcoin_cash) {
-        return error::operation_failed;
-    }
+    // if (bitcoin_cash) {
+    //     return error::operation_failed;
+    // }
 
     return script::verify(tx, input_index, forks);
 }

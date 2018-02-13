@@ -34,21 +34,22 @@ class BitprimBlockchainConan(ConanFile):
     options = {"shared": [True, False],
                "fPIC": [True, False],
                "with_consensus": [True, False],
-               "with_litecoin": [True, False],
                "with_tests": [True, False],
                "with_tools": [True, False],
+               "currency": ['BCH', 'BTC', 'LTC']
     }
-
+    #    "with_litecoin": [True, False],
     # "with_remote_database": [True, False],
     # "not_use_cpp11_abi": [True, False]
 
     default_options = "shared=False", \
         "fPIC=True", \
         "with_consensus=True", \
-        "with_litecoin=False", \
         "with_tests=False", \
-        "with_tools=False"
+        "with_tools=False", \
+        "currency=BCH"
 
+    # "with_litecoin=False", \
     # "with_remote_database=False"
 
 
@@ -105,11 +106,13 @@ class BitprimBlockchainConan(ConanFile):
         cmake.definitions["ENABLE_POSITION_INDEPENDENT_CODE"] = option_on_off(self.fPIC_enabled)
 
         cmake.definitions["WITH_CONSENSUS"] = option_on_off(self.options.with_consensus)
-        cmake.definitions["WITH_LITECOIN"] = option_on_off(self.options.with_litecoin)
+        # cmake.definitions["WITH_LITECOIN"] = option_on_off(self.options.with_litecoin)
 
         # cmake.definitions["WITH_REMOTE_DATABASE"] = option_on_off(self.options.with_remote_database)
         cmake.definitions["WITH_TESTS"] = option_on_off(self.options.with_tests)
         cmake.definitions["WITH_TOOLS"] = option_on_off(self.options.with_tools)
+
+        cmake.definitions["CURRENCY"] = self.options.currency
 
         if self.settings.compiler != "Visual Studio":
             # cmake.definitions["CONAN_CXX_FLAGS"] += " -Wno-deprecated-declarations"

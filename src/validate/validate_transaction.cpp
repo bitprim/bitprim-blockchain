@@ -174,7 +174,7 @@ void validate_transaction::connect_inputs(transaction_const_ptr tx,
             break;
         }
 
-        if ((ec = validate_input::verify_script(*tx, input_index, forks, use_libconsensus_, is_bitcoin_cash()))) {
+        if ((ec = validate_input::verify_script(*tx, input_index, forks, use_libconsensus_))) {
             break;
         }
     }

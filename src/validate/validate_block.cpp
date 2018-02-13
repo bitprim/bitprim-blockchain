@@ -346,7 +346,7 @@ void validate_block::connect_inputs(block_const_ptr block, size_t bucket,
                 break;
             }
 
-            if ((ec = validate_input::verify_script(*tx, input_index, forks, use_libconsensus_, is_bitcoin_cash()))) {
+            if ((ec = validate_input::verify_script(*tx, input_index, forks, use_libconsensus_))) {
                 break;
             }
         }
