@@ -162,20 +162,34 @@ code validate_input::verify_script(const transaction& tx, uint32_t input_index,
 
     // const auto amount = bitcoin_cash ? prevout.cache.value() : 0;
     const auto amount = prevout.cache.value();
+    // const auto prevout_value = prevout.cache.value();
 
     // Wire serialization is cached in support of large numbers of inputs.
     const auto tx_data = tx.to_data();
 
     // libconsensus
+#ifdef BITPRIM_CURRENCY_BCH
+
     return convert_result(consensus::verify_script(tx_data.data(),
         tx_data.size(), script_data.data(), script_data.size(), input_index,
         convert_flags(branches), amount));
+
+#else // BITPRIM_CURRENCY_BCH
+
+    return convert_result(consensus::verify_script(tx_data.data(),
+        tx_data.size(), script_data.data(), script_data.size(), amount,
+        input_index, convert_flags(branches)));
+
+#endif // BITPRIM_CURRENCY_BCH
+
 }
 
 #else
 
 code validate_input::verify_script(const transaction& tx,
     uint32_t input_index, uint32_t forks, bool use_libconsensus) {
+
+#error Not supported, build using -o with_consensus=True
 
     if (use_libconsensus) {
         return error::operation_failed;
