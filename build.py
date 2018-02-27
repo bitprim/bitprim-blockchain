@@ -121,9 +121,9 @@ if __name__ == "__main__":
             opts_btc = copy.deepcopy(options)
             # opts_ltc = copy.deepcopy(options)
 
-            opts_bch["%s:currency" % name] = "BCH"
-            opts_btc["%s:currency" % name] = "BTC"
-            # opts_ltc["%s:currency" % name] = "LTC"
+            opts_bch["*:currency"] = "BCH"
+            opts_btc["*:currency"] = "BTC"
+            # opts_ltc["*:currency"] = "LTC"
 
             filtered_builds.append([settings, opts_bch, env_vars, build_requires])
             filtered_builds.append([settings, opts_btc, env_vars, build_requires])
