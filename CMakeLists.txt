@@ -88,6 +88,7 @@ else()
   message(FATAL_ERROR "Invalid Cryptocurrency: ${CURRENCY}")
 endif()
 
+message( STATUS "Bitprim Currency: ${CURRENCY}")
 
 
 # Implement --with-remote-database and declare WITH_REMOTE_DATABASE.

@@ -23,10 +23,12 @@ from conans import ConanFile, CMake
 def option_on_off(option):
     return "ON" if option else "OFF"
 
-def get_content(path):
-    print(os.path.dirname(os.path.abspath(__file__)))
-    print(os.getcwd())
-    with open(path, 'r') as f:
+def get_content(file_name):
+    # print(os.path.dirname(os.path.abspath(__file__)))
+    # print(os.getcwd())
+    file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)
+    # print(file_path)
+    with open(file_path, 'r') as f:
         return f.read()
 
 def get_version():

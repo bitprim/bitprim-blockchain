@@ -181,7 +181,6 @@ code validate_input::verify_script(const transaction& tx, uint32_t input_index,
         input_index, convert_flags(branches)));
 
 #endif // BITPRIM_CURRENCY_BCH
-
 }
 
 #else
