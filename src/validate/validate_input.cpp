@@ -143,6 +143,8 @@ code validate_input::verify_script(const transaction& tx, uint32_t input_index,
     uint32_t branches, bool use_libconsensus) {
 
     if ( ! use_libconsensus) {
+        LOG_INFO(LOG_BLOCKCHAIN) << "verify_script - use_libconsensus: " << use_libconsensus;
+        
     // if ( ! bitcoin_cash) {
         ////// Simulate the inefficiency of calling libconsensus.
         ////BITCOIN_ASSERT(input_index < tx.inputs().size());
@@ -169,16 +171,26 @@ code validate_input::verify_script(const transaction& tx, uint32_t input_index,
 
     // libconsensus
 #ifdef BITPRIM_CURRENCY_BCH
-
-    return convert_result(consensus::verify_script(tx_data.data(),
+    auto res = consensus::verify_script(tx_data.data(),
         tx_data.size(), script_data.data(), script_data.size(), input_index,
-        convert_flags(branches), amount));
+        convert_flags(branches), amount);
+
+    LOG_INFO(LOG_BLOCKCHAIN)
+        << "verify_script (BCH) - res: " << res;
+
+    return convert_result(res);
 
 #else // BITPRIM_CURRENCY_BCH
 
-    return convert_result(consensus::verify_script(tx_data.data(),
+    auto res = consensus::verify_script(tx_data.data(),
         tx_data.size(), script_data.data(), script_data.size(), amount,
-        input_index, convert_flags(branches)));
+        input_index, convert_flags(branches));
+
+    LOG_INFO(LOG_BLOCKCHAIN)
+        << "verify_script (BTC) - res: " << res;
+
+    return convert_result(res);
+
 
 #endif // BITPRIM_CURRENCY_BCH
 }
