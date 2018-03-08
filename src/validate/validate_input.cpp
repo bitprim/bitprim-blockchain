@@ -53,7 +53,10 @@ uint32_t validate_input::convert_flags(uint32_t native_forks)
         flags |= verify_flags_checksequenceverify;
 
 #ifdef BITPRIM_CURRENCY_BCH
-    if (script::is_enabled(native_forks, rule_fork::cash_low_s_rule)){
+    // First bitcoin cash fork (FORKID on txns)
+    flags |= verify_flags_script_enable_sighash_forkid;
+
+    if (script::is_enabled(native_forks, rule_fork::cash_low_s_rule)) {
         // Obligatory flags used on the Nov 13Th - 2017 Bitcoin Cash HF
         flags |= verify_flags_low_s;
         flags |= verify_flags_nulldummy;
