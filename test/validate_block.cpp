@@ -63,8 +63,59 @@ BOOST_AUTO_TEST_CASE(validate_block__native__block_438513_tx__valid)
     prevout.set_script(script::factory_from_data(decoded_script, false));
     BOOST_REQUIRE(prevout.script().is_valid());
 
-    const auto result = validate_input::verify_script(tx, index, 62, libconsensus);
+    const auto result = validate_input::verify_script(tx, index, forks, libconsensus);
+#ifdef BITPRIM_CURRENCY_BCH
+    BOOST_REQUIRE_EQUAL(result.value(), error::invalid_script);
+#else
+    BOOST_REQUIRE_EQUAL(result.value(), error::success);
+#endif
+
+}
+#ifdef BITPRIM_CURRENCY_BCH
+BOOST_AUTO_TEST_CASE(validate_block__native__block_520679_tx__valid)
+{
+    //// DEBUG [blockchain] Input validation failed (stack false)
+    //// libconsensus : false
+    //// forks        : 62 (?)
+    //// outpoint     : dae852c88a00e95141cfe924ac6667a91af87431988d23eff268ea3509d6d83c:1
+    //// script       : 76a9149c1093566aa0812e4ea55b5dc3d19a4223fa84d388ac
+    //// inpoint      : ace8aaf0ea1c9996171fb2f73dff1f972d9c4b5b916534c32e0ae7f4a011116f:0
+    //// transaction  : 01000000013cd8d60935ea68f2ef238d983174f81aa96766ac24e9cf4151e9008ac852e8da010000006a47304402206ccfd8739b2f98350d91ff7fec529f8bc085459b36cf26a22d95606737d4381002204429c60535745ef0b71c14bf0a9df565e8c87b934ee0b2766971cf5b15d085c04121020f123b05aadc865fd60d1513144f48f5d8de3403d3c3f00ce233d53329f10ccaffffffff0156998501000000001976a914bf4679910a2ba81b7f3f2ee03fc77847dc673b2288ac00000000
+
+    static const auto index = 0u;
+    static const auto encoded_script = "76a9149c1093566aa0812e4ea55b5dc3d19a4223fa84d388ac";
+    static const auto encoded_tx = "01000000013cd8d60935ea68f2ef238d983174f81aa96766ac24e9cf4151e9008ac852e8da010000006a47304402206ccfd8739b2f98350d91ff7fec529f8bc085459b36cf26a22d95606737d4381002204429c60535745ef0b71c14bf0a9df565e8c87b934ee0b2766971cf5b15d085c04121020f123b05aadc865fd60d1513144f48f5d8de3403d3c3f00ce233d53329f10ccaffffffff0156998501000000001976a914bf4679910a2ba81b7f3f2ee03fc77847dc673b2288ac00000000";
+
+//    uint32_t forks = verify_flags_none;
+//    forks |= verify_flags_p2sh;
+//    forks |= verify_flags_checklocktimeverify;
+//    forks |= verify_flags_dersig;
+//    forks |= verify_flags_checksequenceverify;
+//    forks |= verify_flags_script_enable_sighash_forkid;
+//    forks |= verify_flags_low_s;
+//    forks |= verify_flags_nulldummy;
+
+    static const uint32_t forks = 67101u;
+
+    data_chunk decoded_tx;
+    BOOST_REQUIRE(decode_base16(decoded_tx, encoded_tx));
+
+    data_chunk decoded_script;
+    BOOST_REQUIRE(decode_base16(decoded_script, encoded_script));
+
+    transaction tx;
+    BOOST_REQUIRE(tx.from_data(decoded_tx));
+
+    const auto& input = tx.inputs()[index];
+    auto& prevout = input.previous_output().validation.cache;
+
+    prevout.set_value(25533210);
+    prevout.set_script(script::factory_from_data(decoded_script, false));
+    BOOST_REQUIRE(prevout.script().is_valid());
+
+    const auto result = validate_input::verify_script(tx, index, forks, libconsensus);
     BOOST_REQUIRE_EQUAL(result.value(), error::success);
 }
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()
