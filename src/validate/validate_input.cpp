@@ -180,6 +180,20 @@ code validate_input::verify_script(const transaction& tx, uint32_t input_index,
 
     LOG_INFO(LOG_BLOCKCHAIN)
         << "verify_script (BCH) - res: " << res;
+    if (res != verify_result_type::verify_result_eval_true) {
+        LOG_INFO(LOG_BLOCKCHAIN)
+            << "verify_script (BCH) - amout: " << amount;
+        LOG_INFO(LOG_BLOCKCHAIN)
+            << "verify_script (BCH) - script_data: " << libbitcoin::encode_base16(script_data);
+        LOG_INFO(LOG_BLOCKCHAIN)
+            << "verify_script (BCH) - tx_data: " << libbitcoin::encode_base16(tx_data);
+        LOG_INFO(LOG_BLOCKCHAIN)
+            << "verify_script (BCH) - branches: " << branches;
+        LOG_INFO(LOG_BLOCKCHAIN)
+            << "verify_script (BCH) - convert_flags(branches): " << convert_flags(branches);
+        LOG_INFO(LOG_BLOCKCHAIN)
+            << "verify_script (BCH) - input_index: " << input_index;
+    }
 
     return convert_result(res);
 
