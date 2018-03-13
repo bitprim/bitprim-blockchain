@@ -19,6 +19,8 @@
 
 import os
 from conans import ConanFile, CMake
+from conans import __version__ as conan_version
+from conans.model.version import Version
 
 def option_on_off(option):
     return "ON" if option else "OFF"
@@ -37,17 +39,19 @@ def get_version():
 def get_channel():
     return get_content('conan_channel')
 
+def get_conan_req_version():
+    return get_content('conan_req_version')
 
 class BitprimBlockchainConan(ConanFile):
-
     name = "bitprim-blockchain"
-    # version = "0.7"
     version = get_version()
-
     license = "http://www.boost.org/users/license.html"  #TODO(fernando): change to bitprim licence file
     url = "https://github.com/bitprim/bitprim-blockchain/blob/conan-build/conanfile.py"
     description = "Bitprim Blockchain Library"
     settings = "os", "compiler", "build_type", "arch"
+    
+    if conan_version < Version(get_conan_req_version()):
+        raise Exception ("Conan version should be greater or equal than %s" % (get_conan_req_version(), ))
     
     options = {"shared": [True, False],
                "fPIC": [True, False],
