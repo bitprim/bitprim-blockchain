@@ -26,15 +26,8 @@ using namespace bc::machine;
 
 BOOST_AUTO_TEST_SUITE(validate_block_tests)
 
-#ifdef WITH_CONSENSUS
-    static const auto libconsensus = true;
-#else
-    static const auto libconsensus = false;
-#endif
-
 BOOST_AUTO_TEST_CASE(validate_block__native__block_438513_tx__valid) {
     //// DEBUG [blockchain] Input validation failed (stack false)
-    //// libconsensus : false
     //// forks        : 62
     //// outpoint     : 8e51d775e0896e03149d585c0655b3001da0c55068b0885139ac6ec34cf76ba0:0
     //// script       : a914faa558780a5767f9e3be14992a578fc1cbcf483087
@@ -62,7 +55,7 @@ BOOST_AUTO_TEST_CASE(validate_block__native__block_438513_tx__valid) {
     prevout.set_script(script::factory_from_data(decoded_script, false));
     BOOST_REQUIRE(prevout.script().is_valid());
 
-    const auto result = validate_input::verify_script(tx, index, forks, libconsensus);
+    const auto result = validate_input::verify_script(tx, index, forks);
 #ifdef BITPRIM_CURRENCY_BCH
     BOOST_REQUIRE_EQUAL(result.value(), error::invalid_script);
 #else
@@ -74,7 +67,6 @@ BOOST_AUTO_TEST_CASE(validate_block__native__block_438513_tx__valid) {
 BOOST_AUTO_TEST_CASE(validate_block__native__block_520679_tx__valid)
 {
     //// DEBUG [blockchain] Input validation failed (stack false)
-    //// libconsensus : false
     //// forks        : 62 (?)
     //// outpoint     : dae852c88a00e95141cfe924ac6667a91af87431988d23eff268ea3509d6d83c:1
     //// script       : 76a9149c1093566aa0812e4ea55b5dc3d19a4223fa84d388ac
@@ -112,7 +104,7 @@ BOOST_AUTO_TEST_CASE(validate_block__native__block_520679_tx__valid)
     prevout.set_script(script::factory_from_data(decoded_script, false));
     BOOST_REQUIRE(prevout.script().is_valid());
 
-    const auto result = validate_input::verify_script(tx, index, forks, libconsensus);
+    const auto result = validate_input::verify_script(tx, index, forks);
     BOOST_REQUIRE_EQUAL(result.value(), error::success);
 }
 #endif

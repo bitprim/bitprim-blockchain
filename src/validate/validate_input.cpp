@@ -156,7 +156,6 @@ code validate_input::verify_script(const transaction& tx, uint32_t input_index,
     // Wire serialization is cached in support of large numbers of inputs.
     const auto tx_data = tx.to_data();
 
-    // libconsensus
 #ifdef BITPRIM_CURRENCY_BCH
     auto res = consensus::verify_script(tx_data.data(),
         tx_data.size(), script_data.data(), script_data.size(), input_index,
