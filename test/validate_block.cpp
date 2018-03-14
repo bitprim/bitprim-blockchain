@@ -32,8 +32,7 @@ BOOST_AUTO_TEST_SUITE(validate_block_tests)
     static const auto libconsensus = false;
 #endif
 
-BOOST_AUTO_TEST_CASE(validate_block__native__block_438513_tx__valid)
-{
+BOOST_AUTO_TEST_CASE(validate_block__native__block_438513_tx__valid) {
     //// DEBUG [blockchain] Input validation failed (stack false)
     //// libconsensus : false
     //// forks        : 62

@@ -143,23 +143,7 @@ code validate_input::convert_result(verify_result_type result)
 
 // TODO: cache transaction wire serialization.
 code validate_input::verify_script(const transaction& tx, uint32_t input_index,
-    uint32_t branches, bool use_libconsensus) {
-
-    if ( ! use_libconsensus) {
-        LOG_INFO(LOG_BLOCKCHAIN) << "verify_script - use_libconsensus: " << use_libconsensus;
-        
-    // if ( ! bitcoin_cash) {
-        ////// Simulate the inefficiency of calling libconsensus.
-        ////BITCOIN_ASSERT(input_index < tx.inputs().size());
-        ////const auto& prevout = tx.inputs()[input_index].previous_output().validation;
-        ////const auto script_data = prevout.cache.script().to_data(false);
-        ////const auto tx_data = tx.to_data();
-        ////auto clone = transaction::factory_from_data(tx_data);
-        ////const auto input = clone.inputs()[input_index].script();
-        ////const auto prevout = script::factory_from_data(script_data, false);
-        ////return script::verify(clone, input_index, branches, input, prevout);
-        return script::verify(tx, input_index, branches);
-    }
+    uint32_t branches) {
 
     BITCOIN_ASSERT(input_index < tx.inputs().size());
     const auto& prevout = tx.inputs()[input_index].previous_output().validation;
@@ -191,16 +175,11 @@ code validate_input::verify_script(const transaction& tx, uint32_t input_index,
 #endif // BITPRIM_CURRENCY_BCH
 }
 
-#else
+#else //WITH_CONSENSUS
 
-code validate_input::verify_script(const transaction& tx,
-    uint32_t input_index, uint32_t forks, bool use_libconsensus) {
+code validate_input::verify_script(transaction const& tx, uint32_t input_index, uint32_t forks) {
 
 #error Not supported, build using -o with_consensus=True
-
-    if (use_libconsensus) {
-        return error::operation_failed;
-    }
 
     // if (bitcoin_cash) {
     //     return error::operation_failed;
@@ -209,7 +188,7 @@ code validate_input::verify_script(const transaction& tx,
     return script::verify(tx, input_index, forks);
 }
 
-#endif
+#endif //WITH_CONSENSUS
 
 } // namespace blockchain
 } // namespace libbitcoin
