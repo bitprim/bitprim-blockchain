@@ -106,7 +106,7 @@ class BitprimBlockchainConan(ConanFile):
         if self.settings.arch == "x86_64" and self.options.microarchitecture == "_DUMMY_":
             del self.options.fix_march
             # self.options.remove("fix_march")
-            raise Exception ("fix_march option is for using together with microarchitecture option.")
+            # raise Exception ("fix_march option is for using together with microarchitecture option.")
 
         if self.settings.arch == "x86_64":
             march_conan_manip(self)
@@ -139,14 +139,13 @@ class BitprimBlockchainConan(ConanFile):
         cmake.definitions["CURRENCY"] = self.options.currency
 
         if self.settings.compiler != "Visual Studio":
-            # cmake.definitions["CONAN_CXX_FLAGS"] += " -Wno-deprecated-declarations"
             cmake.definitions["CONAN_CXX_FLAGS"] = cmake.definitions.get("CONAN_CXX_FLAGS", "") + " -Wno-deprecated-declarations"
 
         if self.settings.compiler == "Visual Studio":
             cmake.definitions["CONAN_CXX_FLAGS"] = cmake.definitions.get("CONAN_CXX_FLAGS", "") + " /DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE"
 
         cmake.definitions["MICROARCHITECTURE"] = self.options.microarchitecture
-        cmake.definitions["BITPRIM_PROJECT_VERSION"] = get_version()
+        cmake.definitions["BITPRIM_PROJECT_VERSION"] = self.version
 
         if self.settings.compiler == "gcc":
             if float(str(self.settings.compiler.version)) >= 5:
@@ -159,7 +158,6 @@ class BitprimBlockchainConan(ConanFile):
 
         pass_march_to_compiler(self, cmake)
 
-        cmake.definitions["BITPRIM_BUILD_NUMBER"] = os.getenv('BITPRIM_BUILD_NUMBER', '-')
         cmake.configure(source_dir=self.source_folder)
         cmake.build()
 
