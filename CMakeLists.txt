@@ -64,9 +64,13 @@ option(WITH_TESTS "Compile with unit tests." ON)
 #------------------------------------------------------------------------------
 option(WITH_TOOLS "Compile with tools." OFF)
 
-# Implement --with-litecoin.
+# Implement --with-keoken and declare WITH_KEOKEN.
 #------------------------------------------------------------------------------
-# option(WITH_LITECOIN "Compile with Litecoin support." OFF)
+option(WITH_KEOKEN "Keoken enabled." OFF)
+if (WITH_KEOKEN)
+  message(STATUS "Bitprim: Keoken enabled")
+  add_definitions(-DWITH_KEOKEN)
+endif()
 
 set(BITPRIM_PROJECT_VERSION "-" CACHE STRING "Specify the Bitprim Project Version.")
 # message(${BITPRIM_PROJECT_VERSION})

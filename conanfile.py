@@ -41,7 +41,8 @@ class BitprimBlockchainConan(BitprimConanFile):
                "currency": ['BCH', 'BTC', 'LTC'],
                "microarchitecture": "ANY", #["x86_64", "haswell", "ivybridge", "sandybridge", "bulldozer", ...]
                "fix_march": [True, False],
-               "verbose": [True, False]
+               "verbose": [True, False],
+               "keoken": [True, False]
     }
     # "with_remote_database": [True, False],
 
@@ -53,10 +54,10 @@ class BitprimBlockchainConan(BitprimConanFile):
         "currency=BCH", \
         "microarchitecture=_DUMMY_",  \
         "fix_march=False", \
-        "verbose=False"
+        "verbose=False", \
+        "keoken=False"
 
     # "with_remote_database=False"
-
 
     generators = "cmake"
     exports = "conan_*", "ci_utils/*"
@@ -119,6 +120,10 @@ class BitprimBlockchainConan(BitprimConanFile):
         # cmake.definitions["WITH_REMOTE_DATABASE"] = option_on_off(self.options.with_remote_database)
         cmake.definitions["WITH_TESTS"] = option_on_off(self.options.with_tests)
         cmake.definitions["WITH_TOOLS"] = option_on_off(self.options.with_tools)
+
+        cmake.definitions["WITH_TOOLS"] = option_on_off(self.options.with_tools)
+
+        cmake.definitions["WITH_KEOKEN"] = option_on_off(self.options.keoken)
 
         cmake.definitions["CURRENCY"] = self.options.currency
 
