@@ -17,162 +17,165 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <bitcoin/bitcoin/chain/transaction.hpp>
+#include <bitprim/keoken/interpreter.hpp>
 
+#include <bitcoin/bitcoin/chain/output.hpp>
+
+using libbitcoin::chain::transaction;
+using libbitcoin::chain::output;
 using libbitcoin::data_chunk;
+using libbitcoin::reader;
 using libbitcoin::wallet::payment_address;
 
-class keoken_state {
-    constexpr asset_id_t asset_id_initial = 1;
-public:    
-    using asset_element = std::tuple<domain::asset, size_t, chain::transaction>;
-    using asset_list_t = std::vector<asset_element>;
+namespace bitprim {
+namespace keoken {
 
-    //TODO: cambiar nombres a los siguientes tipos
-    using balance_key = std::tuple<asset_id_t, payment_address>;
-    using balance_value = std::tuple<amount_t, size_t, chain::transaction>;
-    using balance_t = std::unordered_map<balance_key, balance_value>;
+bool interpreter::version_dispatcher(size_t block_height, transaction const& tx, reader& source) {
 
-    void create_asset(message::create_asset const& msg, 
-                      payment_address const& owner,
-                      size_t block_height, libbitcoin::hash_digest const& txid) {
-        domain::asset obj(asset_id_, obj.name(), obj.amount());
+    auto version = source.read_2_bytes_big_endian();
+    if ( ! source) return false;
 
-        // synchro
-        asset_list_.emplace_back(obj, block_height, txid);
-        balance_.emplace(balance_key{asset_id, owner}, 
-                         balance_value{obj.amount(), block_height, txid});
-        ++asset_id;
-        // synchro end
+    switch (version) {
+        case 0x00:      //TODO(fernando): enum
+            return version_0_type_dispatcher(block_height, tx, source);
     }
 
-    void create_balance_entry(message::send_tokens const& msg, 
-                              payment_address const& source,
-                              payment_address const& target, 
-                              size_t block_height, libbitcoin::hash_digest const& txid) {
+    return false;
+}
 
-        // synchro
-        balance_.emplace(balance_key{msg.asset_id(), source}, 
-                         balance_value{amount_t(-1) * msg.amount(), block_height, txid});
+bool interpreter::version_0_type_dispatcher(size_t block_height, transaction const& tx, reader& source) {
+    auto type = source.read_2_bytes_big_endian();
+    if ( ! source) return false;
 
-        balance_.emplace(balance_key{msg.asset_id(), target}, 
-                         balance_value{msg.amount(), block_height, txid});
-        // synchro end
+    switch (type) {
+        case 0x00:      //TODO(fernando): enum, create asset 
+            return process_create_asset_version_0(block_height, tx, source);
+        case 0x01:
+            return process_send_tokens_version_0(block_height, tx, source);
+    }
+    return false;
+}
+
+payment_address interpreter::get_first_input_addr(transaction const& tx) const {
+    auto const& owner_input = tx.inputs()[0];
+
+    output out_output;
+    size_t out_height;
+    uint32_t out_median_time_past;
+    bool out_coinbase;
+
+    if ( ! fast_chain_.get_output(out_output, out_height, out_median_time_past, out_coinbase, 
+                    owner_input.previous_output(), libbitcoin::max_size_t, true)) {
+        return payment_address{};   //TODO: check if it has is_valid()
     }
 
-private:
-    asset_id_t asset_id = asset_id_initial;
-    asset_list_t asset_list_;
-    balance_t balance_;
-};
+    return out_output.address();
+}
+
+bool interpreter::process_create_asset_version_0(size_t block_height, transaction const& tx, reader& source) {
+    auto msg = message::create_asset::factory_from_data(source);
+    if ( ! source) return false;    //TODO: error codes
+
+    if (msg.amount() <= 0) {
+        return false;               //TODO: error codes
+    }
+
+    auto const owner = get_first_input_addr(tx);
+    if ( ! owner) {
+        return false;               //TODO: error codes
+    }
+
+    state_.create_asset(msg, owner, block_height, tx.hash());
+
+    return true;
+}
 
 
-class keoken_interpreter {
-public:
+std::pair<payment_address, payment_address> interpreter::get_send_tokens_addrs(transaction const& tx) const {
+    auto source = get_first_input_addr(tx);
+    if ( ! source) {
+        return {payment_address{}, payment_address{}};
+    }
 
-    bool version_dispatcher(size_t block_height, chain::transaction const& tx, reader& source) {
+    auto it = std::find_if(tx.outputs().begin(), tx.outputs().end(), [&source](output const& o) {
+        return o.address() && o.address() != source;
+    });
 
-        auto version = source.read_2_bytes_big_endian();
-        if ( ! source) return false;
+    if (it == tx.outputs().end()) {
+        return {payment_address{}, payment_address{}};        
+    }
 
-        switch (base.version()) {
-            case 0x00:      //TODO(fernando): enum
-                return version_0_type_dispatcher(block_height, tx, source);
-        }
+    return {source, it->address()};
+}
 
+
+bool interpreter::process_send_tokens_version_0(size_t block_height, transaction const& tx, reader& source) {
+    auto msg = message::send_tokens::factory_from_data(source);
+    if ( ! source) return false;
+
+    if ( ! state_.asset_id_exists(msg.asset_id())) {
         return false;
     }
 
-    bool version_0_type_dispatcher(size_t block_height, chain::transaction const& tx, reader& source) {
-        auto type = source.read_2_bytes_big_endian();
-        if ( ! source) return false;
+    if (msg.amount() <= 0) {
+        return false;               //TODO: error codes
+    }
+  
+    auto wallets = get_send_tokens_addrs(tx);
+    payment_address const& source_addr = wallets.first;
+    payment_address const& target_addr = wallets.second;
 
-        switch (type) {
-            case 0x00:      //TODO(fernando): enum, create asset 
-                return process_create_asset_version_0(block_height, tx, source);
-            case 0x01:
-                return process_send_tokens_version_0(block_height, tx, source);
-        }
-        return false;
+    if ( ! source_addr || ! target_addr) {
+        return false;               //TODO: error codes
     }
 
-    payment_address get_asset_owner_addr(chain::transaction const& tx) {
-        auto const& owner_input = tx.inputs()[0];
-
-        chain::output out_output;
-        size_t out_height;
-        uint32_t out_median_time_past;
-        bool out_coinbase;
-
-        if ( ! get_output(out_output, out_height, out_median_time_past, out_coinbase, 
-                       owner_input.previous_output(), libbitcoin::max_size_t, true)) {
-            return payment_address{};   //TODO: check if it has is_valid()
-        }
-
-        return out_output.address();
+    if (state_.get_balance(msg.asset_id(), source_addr) < msg.amount()) {
+        return false;               //TODO: error codes
     }
 
-    bool process_create_asset_version_0(size_t block_height, chain::transaction const& tx, reader& source) {
-        auto msg = message::create_asset::factory_from_data(source);
-        if ( ! source) return false;    //TODO: error codes
+    state_.create_balance_entry(msg, source_addr, target_addr, block_height, tx.hash());
 
-        if (msg.amount() <= 0) {
-            return false;               //TODO: error codes
-        }
+    return true;
+}
 
-        auto const owner = get_asset_owner_addr(tx);
-        if ( ! owner.is_valid()) {
-            return false;               //TODO: error codes
-        }
+// void interpreter::extract_keoken_info(size_t from_block) {
+//     chain::block b;
 
-        state_.create_asset(msg, owner, block_height, tx.hash());
-    }
+//     for each block in the blockchain from the genesis keoken block {
+//         for_each_keoken_tx(b, [](size_t block_height, transaction const& tx, data_chunk const& keo_data) {
+//             istream_reader source(data_source(keo_data));
+//             version_dispatcher(block_height, tx, source);
+//         });
+//     }
+// }
 
-    bool process_send_tokens_version_0(size_t block_height, chain::transaction const& tx, reader& source) {
-        auto msg = message::send_tokens::factory_from_data(source);
-        if ( ! source) return false;
-
-        //TODO: check if msg.asset_id() exists in asset_list
-
-        {source, target} = get_wallets(tx);  //podria haber error
-
-        saldo = get_saldo({msg.asset_id(), source})
-        if (saldo <msg.amount()) return false;
-
-        state_.create_balance_entry(msg, source, target, block_height, tx.hash());
-    }
+} // namespace keoken
+} // namespace bitprim
 
 
-    void extract_keoken_info(size_t from_block) {
-        chain::block b;
-
-        for each block in the blockchain from the genesis keoken block {
-            for_each_keoken_tx(b, [](size_t block_height, chain::transaction const& tx, data_chunk const& keo_data) {
-                istream_reader source(data_source(keo_data));
-                version_dispatcher(block_height, tx, source);
-            });
-        }
-    }
 
 
-    // STATUS? get_global_status() {
 
-    //     std::vector<chain::block> blockchain;
 
-    //     for (auto const& b : blockchain) {
 
-    //         for_each_keoken_tx(b, [](size_t block_height, chain::transaction const& tx, data_chunk const& keo_data) {
-    //             version = keo_data[0] + keo_data[1];    //TODO(fernando): replace it
-    //             hace_algo_con_version(block_height, tx, version, keo_data);
-    //         });
 
-    //     }
-    // }
 
-private:
-    keoken_state state_;
-};
 
+
+
+// STATUS? get_global_status() {
+
+//     std::vector<chain::block> blockchain;
+
+//     for (auto const& b : blockchain) {
+
+//         for_each_keoken_tx(b, [](size_t block_height, transaction const& tx, data_chunk const& keo_data) {
+//             version = keo_data[0] + keo_data[1];    //TODO(fernando): replace it
+//             hace_algo_con_version(block_height, tx, version, keo_data);
+//         });
+
+//     }
+// }
 
 
 /*
@@ -367,13 +370,6 @@ API:
     - 
 
 */    
-
-
-} // namespace keoken
-} // namespace bitprim
-
-
-
 
 /*
 C# 

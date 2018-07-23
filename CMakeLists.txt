@@ -241,7 +241,7 @@ if (ENABLE_SHARED)
   set(MODE SHARED)
 endif()
 
-add_library(bitprim-blockchain ${MODE}
+set(bitprim_blockchain_sources 
   src/interface/block_chain.cpp
 
   src/pools/block_entry.cpp
@@ -263,9 +263,18 @@ add_library(bitprim-blockchain ${MODE}
   src/settings.cpp
   src/version.cpp
 
-  # Keoken
-  src/bitprim/keoken/keoken_state.cpp
 )
+
+message(STATUS "WITH_KEOKEN: ${WITH_KEOKEN}")
+
+if (WITH_KEOKEN)
+  set(bitprim_blockchain_sources ${bitprim_blockchain_sources}         
+    src/bitprim/keoken/interpreter.cpp
+    src/bitprim/keoken/state.cpp
+  )
+endif()
+
+add_library(bitprim-blockchain ${MODE} ${bitprim_blockchain_sources})
 
 
 

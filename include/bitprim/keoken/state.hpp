@@ -23,59 +23,78 @@
 #include <unordered_map>
 #include <vector>
 
-#include <bitprim/keoken/message/base.hpp>
+// #include <boost/functional/hash.hpp>
+
+#include <bitcoin/bitcoin/chain/transaction.hpp>
+#include <bitcoin/bitcoin/wallet/payment_address.hpp>
+
+#include <bitprim/keoken/domain/asset.hpp>
+#include <bitprim/keoken/domain/base.hpp>
 #include <bitprim/keoken/message/create_asset.hpp>
+#include <bitprim/keoken/message/send_tokens.hpp>
+
 
 namespace bitprim {
-namespace blockchain {
+namespace keoken {
+
+using balance_key = std::tuple<bitprim::keoken::domain::asset_id_t, libbitcoin::wallet::payment_address>;
+
+} // namespace keoken
+} // namespace bitprim
+
+
+// Standard hash.
+//-----------------------------------------------------------------------------
+
+namespace std {
+template <>
+struct hash<bitprim::keoken::balance_key> {
+    size_t operator()(bitprim::keoken::balance_key const& key) const {
+        //Note: if we choose use boost::hash_combine we have to specialize bc::wallet::payment_address in the boost namespace
+        // size_t seed = 0;
+        // boost::hash_combine(seed, std::get<0>(key));
+        // boost::hash_combine(seed, std::get<1>(key));
+        // return seed;
+        size_t h1 = std::hash<bitprim::keoken::domain::asset_id_t>{}(std::get<0>(key));
+        size_t h2 = std::hash<libbitcoin::wallet::payment_address>{}(std::get<1>(key));
+        return h1 ^ (h2 << 1);
+    }
+};
+} // namespace std
+//-----------------------------------------------------------------------------
+
+namespace bitprim {
 namespace keoken {
 
 class state {
-    constexpr asset_id_t asset_id_initial = 1;
+    static constexpr domain::asset_id_t asset_id_initial = 1;
 public:    
-    using asset_element = std::tuple<domain::asset, size_t, chain::transaction>;
+    using asset_element = std::tuple<domain::asset, size_t, libbitcoin::hash_digest>;
     using asset_list_t = std::vector<asset_element>;
-
-    //TODO: cambiar nombres a los siguientes tipos
-    using balance_key = std::tuple<asset_id_t, payment_address>;
-    using balance_value = std::tuple<amount_t, size_t, chain::transaction>;
+    using balance_value_elem = std::tuple<domain::amount_t, size_t, libbitcoin::hash_digest>;
+    using balance_value = std::vector<balance_value_elem>;
     using balance_t = std::unordered_map<balance_key, balance_value>;
 
     void create_asset(message::create_asset const& msg, 
-                      payment_address const& owner,
-                      size_t block_height, libbitcoin::hash_digest const& txid) {
-        domain::asset obj(asset_id_, obj.name(), obj.amount());
-
-        // synchro
-        asset_list_.emplace_back(obj, block_height, txid);
-        balance_.emplace(balance_key{asset_id, owner}, 
-                         balance_value{obj.amount(), block_height, txid});
-        ++asset_id;
-        // synchro end
-    }
+                      libbitcoin::wallet::payment_address const& owner,
+                      size_t block_height, libbitcoin::hash_digest const& txid);
 
     void create_balance_entry(message::send_tokens const& msg, 
-                              payment_address const& source,
-                              payment_address const& target, 
-                              size_t block_height, libbitcoin::hash_digest const& txid) {
+                              libbitcoin::wallet::payment_address const& source,
+                              libbitcoin::wallet::payment_address const& target, 
+                              size_t block_height, libbitcoin::hash_digest const& txid);
 
-        // synchro
-        balance_.emplace(balance_key{msg.asset_id(), source}, 
-                         balance_value{amount_t(-1) * msg.amount(), block_height, txid});
+    bool asset_id_exists(domain::asset_id_t id) const;
 
-        balance_.emplace(balance_key{msg.asset_id(), target}, 
-                         balance_value{msg.amount(), block_height, txid});
-        // synchro end
-    }
+    domain::amount_t get_balance(domain::asset_id_t id, libbitcoin::wallet::payment_address const& addr) const;
 
 private:
-    asset_id_t asset_id = asset_id_initial;
+    domain::asset_id_t asset_id_next_ = asset_id_initial;
     asset_list_t asset_list_;
     balance_t balance_;
 };
 
 } // namespace keoken
-} // namespace blockchain
 } // namespace bitprim
 
 #endif //BITPRIM_BLOCKCHAIN_KEOKEN_STATE_HPP_
