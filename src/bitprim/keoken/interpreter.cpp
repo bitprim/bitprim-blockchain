@@ -17,222 +17,161 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-C# 
-interface IGlobalStateReader {
-    IEnumerable<X> GetAssets();
-    IEnumerable<Y> GetBalanceDetails();
-}
-
-interface IGlobalStateWriter {
-    CreateAsset(X);
-    CreateBalanceLine(Y);
-}
-
-interface IGlobalStateMutate : IGlobalStateReader, IGlobalStateWriter
-{}
-
-class GlobalData : IGlobalStateMutate {
-    IEnumerable<X> GetAssets() {
-        sincronize1
-    }
-
-    IEnumerable<Y> GetBalanceDetails() {
-        sincronize2
-    }
-
-    CreateAsset(X) {
-        sinchronize1
-    }
-
-    CreateBalanceLine(Y) {
-        sinchronize2
-    }    
-}
-
-class Proccessor {
-    IGlobalStateMutate data;
-
-    Proccessor(IGlobalStateMutate data) {
-        data = data;
-    }
-
-    void RecorroBlockchainYActualizoData() {
-        data.CreateAsset(...);
-    }
-}
-*/
-
-/*
-concept IGlobalStateReader {
-    IEnumerable<X> GetAssets();
-    IEnumerable<Y> GetBalanceDetails();
-}
-
-concept IGlobalStateWriter {
-    CreateAsset(X);
-    CreateBalanceLine(Y);
-}
-
-concept IGlobalStateMutate {
-    IGlobalStateReader && IGlobalStateWriter
-}
-
-class GlobalData {
-    IEnumerable<X> GetAssets() {
-        sincronize1
-    }
-
-    IEnumerable<Y> GetBalanceDetails() {
-        sincronize2
-    }
-
-    CreateAsset(X) {
-        sinchronize1
-    }
-
-    CreateBalanceLine(Y) {
-        sinchronize2
-    }    
-}
-
-class PepeData {
-    IEnumerable<X> GetPepe() {
-        sincronize1
-    }
-}
-
-template <GlobalStateMutate G>
-class Processor {
-    G data_;
-
-    Processor(G data) : data_(data) {}
-};
-
-template <typename G> //unconstraintned, concept implicito GlobalStateMutate
-class Processor2 {
-    G data_;
-
-    Processor(G data) : data_(data) {}
-
-    void DoSomething() {
-        data_.CreateAsset(...);// <<<<<
-    }
-};
-
-GlobalData gd;                      //ok
-Processor<GlobalData> p1(gd);       //ok
-
-PepeData pd;                       //ok
-Processor<PepeData> p2(pd);       //error, PepeData is not a GlobalStateMutate
-
-PepeData pd;                       //ok
-Processo2r<PepeData> p2(pd);       //ok
-p2.DoSomething();                   // error en <<<<< PepeData no tiene CreateAsset
-*/
-
-
-
 #include <bitcoin/bitcoin/chain/transaction.hpp>
 
 using libbitcoin::data_chunk;
+using libbitcoin::wallet::payment_address;
 
-size_t asset_id = 1;
+class keoken_state {
+    constexpr asset_id_t asset_id_initial = 1;
+public:    
+    using asset_element = std::tuple<domain::asset, size_t, chain::transaction>;
+    using asset_list_t = std::vector<asset_element>;
 
-bool version_dispatcher(size_t block_height, chain::transaction const& tx, reader& source) {
+    //TODO: cambiar nombres a los siguientes tipos
+    using balance_key = std::tuple<asset_id_t, payment_address>;
+    using balance_value = std::tuple<amount_t, size_t, chain::transaction>;
+    using balance_t = std::unordered_map<balance_key, balance_value>;
 
-    auto version = source.read_2_bytes_big_endian();
-    if ( ! source) return false;
+    void create_asset(message::create_asset const& msg, 
+                      payment_address const& owner,
+                      size_t block_height, libbitcoin::hash_digest const& txid) {
+        domain::asset obj(asset_id_, obj.name(), obj.amount());
 
-    switch (base.version()) {
-        case 0x00:      //TODO(fernando): enum
-            return version_0_type_dispatcher(block_height, tx, source);
+        // synchro
+        asset_list_.emplace_back(obj, block_height, txid);
+        balance_.emplace(balance_key{asset_id, owner}, 
+                         balance_value{obj.amount(), block_height, txid});
+        ++asset_id;
+        // synchro end
     }
 
-    return false;
-}
+    void create_balance_entry(message::send_tokens const& msg, 
+                              payment_address const& source,
+                              payment_address const& target, 
+                              size_t block_height, libbitcoin::hash_digest const& txid) {
 
-bool version_0_type_dispatcher(size_t block_height, chain::transaction const& tx, reader& source) {
-    auto type = source.read_2_bytes_big_endian();
-    if ( ! source) return false;
+        // synchro
+        balance_.emplace(balance_key{msg.asset_id(), source}, 
+                         balance_value{amount_t(-1) * msg.amount(), block_height, txid});
 
-    switch (type) {
-        case 0x00:      //TODO(fernando): enum, create asset 
-            return process_create_asset_version_0(block_height, tx, source);
-        case 0x01:
-            return process_send_tokens_version_0(block_height, tx, source);
+        balance_.emplace(balance_key{msg.asset_id(), target}, 
+                         balance_value{msg.amount(), block_height, txid});
+        // synchro end
     }
-    return false;
-}
 
-bool process_create_asset_version_0(size_t block_height, chain::transaction const& tx, reader& source) {
-    auto msg = message::create_asset::factory_from_data(source);
-    if ( ! source) return false;
-    
-    domain::asset obj(asset_id, obj.name(), obj.amount());
-    ++asset_id;
+private:
+    asset_id_t asset_id = asset_id_initial;
+    asset_list_t asset_list_;
+    balance_t balance_;
+};
 
-    asset_list.emplace_back(block_height, tx, obj);
 
-    //put obj in GLOBAL STATE
-    //registro de global status: 
-    //      - block_height
-    //      - tx
-    //      - domain::asset
+class keoken_interpreter {
+public:
 
-    // balance
-    //    key: {asset_id, wallet}, std::vector { {+obj.amount(), block_height, tx} }
+    bool version_dispatcher(size_t block_height, chain::transaction const& tx, reader& source) {
 
-    // Key                  Value
-    // {Piticoin, Mario}:   [{100, 567890, alsjdalksdjalkdjad}];
-}
+        auto version = source.read_2_bytes_big_endian();
+        if ( ! source) return false;
 
-bool process_send_tokens_version_0(..., tx, ...) {
-    auto msg = message::send_tokens::factory_from_data(source);
-    if ( ! source) return false;
+        switch (base.version()) {
+            case 0x00:      //TODO(fernando): enum
+                return version_0_type_dispatcher(block_height, tx, source);
+        }
 
-    // check if msg.asset_id() exists in asset_list
-    msg.asset_id();
-    msg.amount();
+        return false;
+    }
 
-    {source, target} = get_wallets(tx);  //podria haber error
+    bool version_0_type_dispatcher(size_t block_height, chain::transaction const& tx, reader& source) {
+        auto type = source.read_2_bytes_big_endian();
+        if ( ! source) return false;
 
-    sincronizar {    
+        switch (type) {
+            case 0x00:      //TODO(fernando): enum, create asset 
+                return process_create_asset_version_0(block_height, tx, source);
+            case 0x01:
+                return process_send_tokens_version_0(block_height, tx, source);
+        }
+        return false;
+    }
+
+    payment_address get_asset_owner_addr(chain::transaction const& tx) {
+        auto const& owner_input = tx.inputs()[0];
+
+        chain::output out_output;
+        size_t out_height;
+        uint32_t out_median_time_past;
+        bool out_coinbase;
+
+        if ( ! get_output(out_output, out_height, out_median_time_past, out_coinbase, 
+                       owner_input.previous_output(), libbitcoin::max_size_t, true)) {
+            return payment_address{};   //TODO: check if it has is_valid()
+        }
+
+        return out_output.address();
+    }
+
+    bool process_create_asset_version_0(size_t block_height, chain::transaction const& tx, reader& source) {
+        auto msg = message::create_asset::factory_from_data(source);
+        if ( ! source) return false;    //TODO: error codes
+
+        if (msg.amount() <= 0) {
+            return false;               //TODO: error codes
+        }
+
+        auto const owner = get_asset_owner_addr(tx);
+        if ( ! owner.is_valid()) {
+            return false;               //TODO: error codes
+        }
+
+        state_.create_asset(msg, owner, block_height, tx.hash());
+    }
+
+    bool process_send_tokens_version_0(size_t block_height, chain::transaction const& tx, reader& source) {
+        auto msg = message::send_tokens::factory_from_data(source);
+        if ( ! source) return false;
+
+        //TODO: check if msg.asset_id() exists in asset_list
+
+        {source, target} = get_wallets(tx);  //podria haber error
+
         saldo = get_saldo({msg.asset_id(), source})
         if (saldo <msg.amount()) return false;
 
-        balance[{msg.asset_id(), source}] += {-msg.amount(), 567890, alsjdalksdjalkdjad};
-        balance[{msg.asset_id(), target}] += { msg.amount(), 567890, alsjdalksdjalkdjad};
+        state_.create_balance_entry(msg, source, target, block_height, tx.hash());
     }
-}
 
 
-void extract_keoken_info(size_t from_block) {
-    chain::block b;
+    void extract_keoken_info(size_t from_block) {
+        chain::block b;
 
-    for each block in the blockchain from the genesis keoken block {
-        for_each_keoken_tx(b, [](size_t block_height, chain::transaction const& tx, data_chunk const& keo_data) {
-            istream_reader source(data_source(keo_data));
-            version_dispatcher(block_height, tx, source);
-        });
+        for each block in the blockchain from the genesis keoken block {
+            for_each_keoken_tx(b, [](size_t block_height, chain::transaction const& tx, data_chunk const& keo_data) {
+                istream_reader source(data_source(keo_data));
+                version_dispatcher(block_height, tx, source);
+            });
+        }
     }
-}
 
 
-STATUS? get_global_status() {
+    // STATUS? get_global_status() {
 
-    std::vector<chain::block> blockchain;
+    //     std::vector<chain::block> blockchain;
 
-    for (auto const& b : blockchain) {
+    //     for (auto const& b : blockchain) {
 
-        for_each_keoken_tx(b, [](size_t block_height, chain::transaction const& tx, data_chunk const& keo_data) {
-            version = keo_data[0] + keo_data[1];    //TODO(fernando): replace it
-            hace_algo_con_version(block_height, tx, version, keo_data);
-        });
+    //         for_each_keoken_tx(b, [](size_t block_height, chain::transaction const& tx, data_chunk const& keo_data) {
+    //             version = keo_data[0] + keo_data[1];    //TODO(fernando): replace it
+    //             hace_algo_con_version(block_height, tx, version, keo_data);
+    //         });
 
-    }
-}
+    //     }
+    // }
 
+private:
+    keoken_state state_;
+};
 
 
 
@@ -432,3 +371,122 @@ API:
 
 } // namespace keoken
 } // namespace bitprim
+
+
+
+
+/*
+C# 
+interface IGlobalStateReader {
+    IEnumerable<X> GetAssets();
+    IEnumerable<Y> GetBalanceDetails();
+}
+
+interface IGlobalStateWriter {
+    CreateAsset(X);
+    CreateBalanceLine(Y);
+}
+
+interface IGlobalStateMutate : IGlobalStateReader, IGlobalStateWriter
+{}
+
+class GlobalData : IGlobalStateMutate {
+    IEnumerable<X> GetAssets() {
+        sincronize1
+    }
+
+    IEnumerable<Y> GetBalanceDetails() {
+        sincronize2
+    }
+
+    CreateAsset(X) {
+        sinchronize1
+    }
+
+    CreateBalanceLine(Y) {
+        sinchronize2
+    }    
+}
+
+class Proccessor {
+    IGlobalStateMutate data;
+
+    Proccessor(IGlobalStateMutate data) {
+        data = data;
+    }
+
+    void RecorroBlockchainYActualizoData() {
+        data.CreateAsset(...);
+    }
+}
+*/
+
+/*
+concept IGlobalStateReader {
+    IEnumerable<X> GetAssets();
+    IEnumerable<Y> GetBalanceDetails();
+}
+
+concept IGlobalStateWriter {
+    CreateAsset(X);
+    CreateBalanceLine(Y);
+}
+
+concept IGlobalStateMutate {
+    IGlobalStateReader && IGlobalStateWriter
+}
+
+class GlobalData {
+    IEnumerable<X> GetAssets() {
+        sincronize1
+    }
+
+    IEnumerable<Y> GetBalanceDetails() {
+        sincronize2
+    }
+
+    CreateAsset(X) {
+        sinchronize1
+    }
+
+    CreateBalanceLine(Y) {
+        sinchronize2
+    }    
+}
+
+class PepeData {
+    IEnumerable<X> GetPepe() {
+        sincronize1
+    }
+}
+
+template <GlobalStateMutate G>
+class Processor {
+    G data_;
+
+    Processor(G data) : data_(data) {}
+};
+
+template <typename G> //unconstraintned, concept implicito GlobalStateMutate
+class Processor2 {
+    G data_;
+
+    Processor(G data) : data_(data) {}
+
+    void DoSomething() {
+        data_.CreateAsset(...);// <<<<<
+    }
+};
+
+GlobalData gd;                      //ok
+Processor<GlobalData> p1(gd);       //ok
+
+PepeData pd;                       //ok
+Processor<PepeData> p2(pd);       //error, PepeData is not a GlobalStateMutate
+
+PepeData pd;                       //ok
+Processo2r<PepeData> p2(pd);       //ok
+p2.DoSomething();                   // error en <<<<< PepeData no tiene CreateAsset
+*/
+
+
