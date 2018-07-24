@@ -29,7 +29,6 @@ namespace keoken {
 
 using domain::amount_t;
 
-
 void state::create_asset(message::create_asset const& msg, 
                     payment_address const& owner,
                     size_t block_height, libbitcoin::hash_digest const& txid) {
@@ -49,7 +48,6 @@ void state::create_balance_entry(message::send_tokens const& msg,
                             payment_address const& target, 
                             size_t block_height, libbitcoin::hash_digest const& txid) {
     // synchro
-
     balance_[balance_key{msg.asset_id(), source}].emplace_back(domain::amount_t(-1) * msg.amount(), block_height, txid);
     balance_[balance_key{msg.asset_id(), target}].emplace_back(msg.amount(), block_height, txid);
     // synchro end

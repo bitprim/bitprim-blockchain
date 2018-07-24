@@ -18,28 +18,10 @@
  */
 #include <bitcoin/blockchain/interface/block_chain.hpp>
 
-// #include <algorithm>
-// #include <cstddef>
-// #include <cstdint>
-// #include <functional>
-// #include <memory>
-// #include <numeric>
-// #include <string>
-// #include <utility>
-// #include <unordered_set>
-// #include <bitcoin/bitcoin.hpp>
-// #include <bitcoin/database.hpp>
-// #include <bitcoin/bitcoin/math/sip_hash.hpp>
-// #include <bitcoin/bitcoin/multi_crypto_support.hpp>
-// #include <bitcoin/blockchain/settings.hpp>
-// #include <bitcoin/blockchain/populate/populate_chain_state.hpp>
-// #include <boost/thread/latch.hpp>
-
 namespace libbitcoin {
 namespace blockchain {
 
-
-void block_chain::for_each_transaction(size_t from, size_t to, bool witness, for_each_tx_handler handler) const {
+void block_chain::for_each_transaction(size_t from, size_t to, bool witness, for_each_tx_handler const& handler) const {
 #ifdef BITPRIM_CURRENCY_BCH
     witness = false;    //TODO(fernando): see what to do with those things!
 #endif
@@ -69,7 +51,7 @@ void block_chain::for_each_transaction(size_t from, size_t to, bool witness, for
     }
 }
 
-void block_chain::for_each_transaction_non_coinbase(size_t from, size_t to, bool witness, for_each_tx_handler handler) const {
+void block_chain::for_each_transaction_non_coinbase(size_t from, size_t to, bool witness, for_each_tx_handler const& handler) const {
 #ifdef BITPRIM_CURRENCY_BCH
     witness = false;    //TODO(fernando): see what to do with those things!
 #endif

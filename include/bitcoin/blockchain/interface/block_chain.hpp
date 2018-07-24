@@ -273,9 +273,9 @@ public:
         }
     }
 
-    void for_each_transaction(size_t from, size_t to, bool witness, for_each_tx_handler handler) const;
+    void for_each_transaction(size_t from, size_t to, bool witness, for_each_tx_handler const& handler) const;
 
-    void for_each_transaction_non_coinbase(size_t from, size_t to, bool witness, for_each_tx_handler handler) const;
+    void for_each_transaction_non_coinbase(size_t from, size_t to, bool witness, for_each_tx_handler const& handler) const;
 
 
 

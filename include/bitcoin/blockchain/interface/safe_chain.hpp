@@ -159,8 +159,8 @@ public:
     virtual void fetch_block_locator(const chain::block::indexes& heights,
         block_locator_fetch_handler handler) const = 0;
 
-    void for_each_transaction(size_t from, size_t to, bool witness, for_each_tx_handler handler) const;
-    void for_each_transaction_non_coinbase(size_t from, size_t to, bool witness, for_each_tx_handler handler) const;
+    void for_each_transaction(size_t from, size_t to, bool witness, for_each_tx_handler const& handler) const;
+    void for_each_transaction_non_coinbase(size_t from, size_t to, bool witness, for_each_tx_handler const& handler) const;
 
     // Server Queries.
     //-------------------------------------------------------------------------

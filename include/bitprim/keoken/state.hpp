@@ -73,11 +73,11 @@ struct asset_entry {
         , txid_(txid)
     {}
 
-    // asset_entry() = default;
-    // asset_entry(asset_entry const& x) = default;
-    // asset_entry(asset_entry&& x) = default;
-    // asset_entry& operator=(asset_entry const& x) = default;
-    // asset_entry& operator=(asset_entry&& x) = default;
+    asset_entry() = default;
+    asset_entry(asset_entry const& x) = default;
+    asset_entry(asset_entry&& x) = default;
+    asset_entry& operator=(asset_entry const& x) = default;
+    asset_entry& operator=(asset_entry&& x) = default;
 
     domain::asset asset_;
     size_t block_height_;
@@ -100,8 +100,8 @@ struct balance_entry {
     libbitcoin::hash_digest txid;
 };
 
-
 class state {
+    //TODO(fernando): esto no va acá...
     static constexpr domain::asset_id_t asset_id_initial = 1;
 public:    
     using asset_list_t = std::vector<asset_entry>;
@@ -109,10 +109,12 @@ public:
     using balance_t = std::unordered_map<balance_key, balance_value>;
     using payment_address = libbitcoin::wallet::payment_address;
 
+    //TODO(fernando): message::create_asset should not be used here
     void create_asset(message::create_asset const& msg, 
                       payment_address const& owner,
                       size_t block_height, libbitcoin::hash_digest const& txid);
 
+    //TODO(fernando): message::send_tokens should not be used here
     void create_balance_entry(message::send_tokens const& msg, 
                               payment_address const& source,
                               payment_address const& target, 
@@ -121,6 +123,9 @@ public:
     bool asset_id_exists(domain::asset_id_t id) const;
 
     domain::amount_t get_balance(domain::asset_id_t id, payment_address const& addr) const;
+
+
+
 
 private:
     domain::asset_id_t asset_id_next_ = asset_id_initial;

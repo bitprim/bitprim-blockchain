@@ -30,6 +30,21 @@ using libbitcoin::wallet::payment_address;
 namespace bitprim {
 namespace keoken {
 
+// explicit
+interpreter::interpreter(libbitcoin::blockchain::fast_chain& fast_chain, state& st)
+    : fast_chain_(fast_chain)
+    , state_(st)
+{}
+
+bool interpreter::process(size_t block_height, transaction const& tx) {
+    auto data = first_keoken_output(tx);
+    if ( ! data.empty()) {
+        auto source = istream_reader(data_source(data));
+        return version_dispatcher(block_height, tx, source);
+    }
+    return false; //TODO(fernando): error code
+}
+
 bool interpreter::version_dispatcher(size_t block_height, transaction const& tx, reader& source) {
 
     auto version = source.read_2_bytes_big_endian();
