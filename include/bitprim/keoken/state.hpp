@@ -57,7 +57,7 @@ struct hash<bitprim::keoken::balance_key> {
         // return seed;
         size_t h1 = std::hash<bitprim::keoken::domain::asset_id_t>{}(std::get<0>(key));
         size_t h2 = std::hash<libbitcoin::wallet::payment_address>{}(std::get<1>(key));
-        return h1 ^ (h2 << 1);
+        return h1 ^ (h2 << 1u);
     }
 };
 } // namespace std
@@ -67,23 +67,25 @@ namespace bitprim {
 namespace keoken {
 
 struct asset_entry {
-    asset_entry(domain::asset asset, size_t block_height, libbitcoin::hash_digest txid)
-        : asset(asset), block_height(block_height), txid(txid)
+    asset_entry(domain::asset asset, size_t block_height, libbitcoin::hash_digest const& txid)
+        : asset_(std::move(asset))
+        , block_height_(block_height)
+        , txid_(txid)
     {}
 
-    asset_entry() = default;
-    asset_entry(asset_entry const& x) = default;
-    asset_entry(asset_entry&& x) = default;
-    asset_entry& operator=(asset_entry const& x) = default;
-    asset_entry& operator=(asset_entry&& x) = default;
+    // asset_entry() = default;
+    // asset_entry(asset_entry const& x) = default;
+    // asset_entry(asset_entry&& x) = default;
+    // asset_entry& operator=(asset_entry const& x) = default;
+    // asset_entry& operator=(asset_entry&& x) = default;
 
-    domain::asset asset;
-    size_t block_height;
-    libbitcoin::hash_digest txid;
+    domain::asset asset_;
+    size_t block_height_;
+    libbitcoin::hash_digest txid_;
 };
 
 struct balance_entry {
-    balance_entry(domain::amount_t amount, size_t block_height, libbitcoin::hash_digest txid)
+    balance_entry(domain::amount_t amount, size_t block_height, libbitcoin::hash_digest const& txid)
         : amount(amount), block_height(block_height), txid(txid)
     {}
 

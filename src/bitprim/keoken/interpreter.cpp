@@ -66,7 +66,7 @@ payment_address interpreter::get_first_input_addr(transaction const& tx) const {
 
     if ( ! fast_chain_.get_output(out_output, out_height, out_median_time_past, out_coinbase, 
                     owner_input.previous_output(), libbitcoin::max_size_t, true)) {
-        return payment_address{};   //TODO: check if it has is_valid()
+        return payment_address{};   //TODO(fernando): check if it has is_valid()
     }
 
     return out_output.address();
@@ -74,15 +74,15 @@ payment_address interpreter::get_first_input_addr(transaction const& tx) const {
 
 bool interpreter::process_create_asset_version_0(size_t block_height, transaction const& tx, reader& source) {
     auto msg = message::create_asset::factory_from_data(source);
-    if ( ! source) return false;    //TODO: error codes
+    if ( ! source) return false;    //TODO(fernando): error codes
 
     if (msg.amount() <= 0) {
-        return false;               //TODO: error codes
+        return false;               //TODO(fernando): error codes
     }
 
     auto const owner = get_first_input_addr(tx);
     if ( ! owner) {
-        return false;               //TODO: error codes
+        return false;               //TODO(fernando): error codes
     }
 
     state_.create_asset(msg, owner, block_height, tx.hash());
@@ -118,7 +118,7 @@ bool interpreter::process_send_tokens_version_0(size_t block_height, transaction
     }
 
     if (msg.amount() <= 0) {
-        return false;               //TODO: error codes
+        return false;               //TODO(fernando): error codes
     }
   
     auto wallets = get_send_tokens_addrs(tx);
@@ -126,11 +126,11 @@ bool interpreter::process_send_tokens_version_0(size_t block_height, transaction
     payment_address const& target_addr = wallets.second;
 
     if ( ! source_addr || ! target_addr) {
-        return false;               //TODO: error codes
+        return false;               //TODO(fernando): error codes
     }
 
     if (state_.get_balance(msg.asset_id(), source_addr) < msg.amount()) {
-        return false;               //TODO: error codes
+        return false;               //TODO(fernando): error codes
     }
 
     state_.create_balance_entry(msg, source_addr, target_addr, block_height, tx.hash());
