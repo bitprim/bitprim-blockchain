@@ -72,6 +72,12 @@ if (WITH_KEOKEN)
   add_definitions(-DWITH_KEOKEN)
 endif()
 
+option(JUST_BITPRIM_SOURCES "Just Bitprim source code to be linted." OFF)
+if (JUST_BITPRIM_SOURCES)
+  message(STATUS "Bitprim: Just Bitprim source code to be linted: enabled")
+endif()
+
+
 set(BITPRIM_PROJECT_VERSION "-" CACHE STRING "Specify the Bitprim Project Version.")
 # message(${BITPRIM_PROJECT_VERSION})
 
@@ -241,7 +247,7 @@ if (ENABLE_SHARED)
   set(MODE SHARED)
 endif()
 
-set(bitprim_blockchain_sources 
+set(bitprim_blockchain_sources_just_libbitcoin
   src/interface/block_chain.cpp
 
   src/pools/block_entry.cpp
@@ -266,14 +272,30 @@ set(bitprim_blockchain_sources
   src/bitprim/interface/block_chain.cpp
 )
 
-message(STATUS "WITH_KEOKEN: ${WITH_KEOKEN}")
+set(bitprim_blockchain_sources_just_bitprim
+  src/bitprim/interface/block_chain.cpp
+)
+
+message(STATUS "TODO(fernando) WITH_KEOKEN: ${WITH_KEOKEN}")
 
 if (WITH_KEOKEN)
-  set(bitprim_blockchain_sources ${bitprim_blockchain_sources}         
+  set(bitprim_blockchain_sources_just_bitprim 
+    ${bitprim_blockchain_sources_just_bitprim}         
     src/bitprim/keoken/interpreter.cpp
     src/bitprim/keoken/state.cpp
   )
 endif()
+
+if (NOT JUST_BITPRIM_SOURCES)
+  set(bitprim_blockchain_sources 
+    ${bitprim_blockchain_sources_just_libbitcoin}         
+  )
+endif()
+
+set(bitprim_blockchain_sources 
+  ${bitprim_blockchain_sources}   
+  ${bitprim_blockchain_sources_just_bitprim}         
+)
 
 add_library(bitprim-blockchain ${MODE} ${bitprim_blockchain_sources})
 
