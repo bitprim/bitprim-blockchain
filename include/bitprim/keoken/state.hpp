@@ -68,20 +68,20 @@ namespace keoken {
 
 struct asset_entry {
     asset_entry(domain::asset asset, size_t block_height, libbitcoin::hash_digest const& txid)
-        : asset_(std::move(asset))
-        , block_height_(block_height)
-        , txid_(txid)
+        : asset(std::move(asset))
+        , block_height(block_height)
+        , txid(txid)
     {}
 
-    asset_entry() = default;
-    asset_entry(asset_entry const& x) = default;
-    asset_entry(asset_entry&& x) = default;
-    asset_entry& operator=(asset_entry const& x) = default;
-    asset_entry& operator=(asset_entry&& x) = default;
+    // asset_entry() = default;
+    // asset_entry(asset_entry const& x) = default;
+    // asset_entry(asset_entry&& x) = default;
+    // asset_entry& operator=(asset_entry const& x) = default;
+    // asset_entry& operator=(asset_entry&& x) = default;
 
-    domain::asset asset_;
-    size_t block_height_;
-    libbitcoin::hash_digest txid_;
+    domain::asset asset;
+    size_t block_height;
+    libbitcoin::hash_digest txid;
 };
 
 struct balance_entry {
@@ -89,15 +89,36 @@ struct balance_entry {
         : amount(amount), block_height(block_height), txid(txid)
     {}
 
-    balance_entry() = default;
-    balance_entry(balance_entry const& x) = default;
-    balance_entry(balance_entry&& x) = default;
-    balance_entry& operator=(balance_entry const& x) = default;
-    balance_entry& operator=(balance_entry&& x) = default;
+    // balance_entry() = default;
+    // balance_entry(balance_entry const& x) = default;
+    // balance_entry(balance_entry&& x) = default;
+    // balance_entry& operator=(balance_entry const& x) = default;
+    // balance_entry& operator=(balance_entry&& x) = default;
 
     domain::amount_t amount;
     size_t block_height;
     libbitcoin::hash_digest txid;
+};
+
+//TODO(fernando): put DTOs in other source file
+struct get_assets_by_address_data {
+    get_assets_by_address_data(domain::asset_id_t asset_id, std::string asset_name, libbitcoin::wallet::payment_address asset_creator, domain::amount_t amount)
+        : asset_id(asset_id)
+        , asset_name(std::move(asset_name))
+        , asset_creator(std::move(asset_creator))
+        , amount(amount)
+    {}
+
+    domain::asset_id_t asset_id;
+    std::string asset_name;
+    libbitcoin::wallet::payment_address asset_creator;
+    domain::amount_t amount;
+};
+
+using get_assets_data = get_assets_by_address_data;
+
+struct get_all_asset_addresses_data : get_assets_by_address_data {
+    libbitcoin::wallet::payment_address amount_owner;   //TODO(fernando): quien es dueno del saldo
 };
 
 class state {
@@ -108,6 +129,11 @@ public:
     using balance_value = std::vector<balance_entry>;
     using balance_t = std::unordered_map<balance_key, balance_value>;
     using payment_address = libbitcoin::wallet::payment_address;
+
+    using get_assets_by_address_list = std::vector<get_assets_by_address_data>;
+    using get_assets_list = std::vector<get_assets_data>;
+    using get_all_asset_addresses_list = std::vector<get_all_asset_addresses_data>;
+
 
     //TODO(fernando): message::create_asset should not be used here
     void create_asset(message::create_asset const& msg, 
@@ -125,9 +151,14 @@ public:
     domain::amount_t get_balance(domain::asset_id_t id, payment_address const& addr) const;
 
 
-
+    get_assets_by_address_list get_assets_by_address(libbitcoin::wallet::payment_address const& addr) const;
+    get_assets_list get_assets() const;
+    get_all_asset_addresses_list get_all_asset_addresses() const;
 
 private:
+    domain::asset get_asset_by_id(domain::asset_id_t id) const;
+    domain::amount_t get_balance(balance_value const& entries) const;
+
     domain::asset_id_t asset_id_next_ = asset_id_initial;
     asset_list_t asset_list_;
     balance_t balance_;

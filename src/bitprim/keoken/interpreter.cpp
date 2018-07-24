@@ -20,6 +20,12 @@
 #include <bitprim/keoken/interpreter.hpp>
 
 #include <bitcoin/bitcoin/chain/output.hpp>
+// #include <bitcoin/bitcoin/utility/container_sink.hpp>
+#include <bitcoin/bitcoin/utility/container_source.hpp>
+#include <bitcoin/bitcoin/utility/istream_reader.hpp>
+// #include <bitcoin/bitcoin/utility/ostream_writer.hpp>
+
+#include <bitprim/keoken/transaction_extractor.hpp>
 
 using libbitcoin::chain::transaction;
 using libbitcoin::chain::output;
@@ -37,9 +43,14 @@ interpreter::interpreter(libbitcoin::blockchain::fast_chain& fast_chain, state& 
 {}
 
 bool interpreter::process(size_t block_height, transaction const& tx) {
+    using libbitcoin::istream_reader;
+    using libbitcoin::data_source;
+
     auto data = first_keoken_output(tx);
     if ( ! data.empty()) {
-        auto source = istream_reader(data_source(data));
+        data_source ds(data);
+        istream_reader source(ds);
+
         return version_dispatcher(block_height, tx, source);
     }
     return false; //TODO(fernando): error code

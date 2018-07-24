@@ -36,7 +36,7 @@ public:
     explicit
     interpreter(libbitcoin::blockchain::fast_chain& fast_chain, state& st);
 
-    bool process(size_t block_height, libbitcoin::chain::transaction const& tx, libbitcoin::reader& source);
+    bool process(size_t block_height, libbitcoin::chain::transaction const& tx);
 
 private:
     libbitcoin::wallet::payment_address get_first_input_addr(libbitcoin::chain::transaction const& tx) const;

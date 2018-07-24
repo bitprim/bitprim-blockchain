@@ -461,25 +461,52 @@ if (WITH_TESTS)
   )
 endif()
 
-if (WITH_TESTS_NEW)
+# if (WITH_TESTS_NEW)
 
-  add_custom_target(testsfer ALL
-      COMMAND ${CMAKE_CTEST_COMMAND} -C Debug --output-on-failure -R "test.+"
-      COMMENT "Build and run all the unit tests.")
+#   add_custom_target(testsfer ALL
+#       COMMAND ${CMAKE_CTEST_COMMAND} -C Debug --output-on-failure -R "test.+"
+#       COMMENT "Build and run all the unit tests.")
+
+#   add_executable(bitprim_blockchain_test_new
+#           test_new/main.cpp
+#   )
+
+#   target_link_libraries(bitprim_blockchain_test_new PUBLIC bitprim-blockchain)
+
+#   # _group_sources(bitprim_blockchain_test_new "${CMAKE_CURRENT_LIST_DIR}/test_new")
+
+#   add_test(NAME test.new_tests COMMAND bitprim_blockchain_test_new)
+
+#   add_dependencies(testsfer test.new_tests)
+
+# endif()
+
+
+
+
+
+if (WITH_TESTS_NEW)
 
   add_executable(bitprim_blockchain_test_new
           test_new/main.cpp
   )
-
   target_link_libraries(bitprim_blockchain_test_new PUBLIC bitprim-blockchain)
 
-  # _group_sources(bitprim_blockchain_test_new "${CMAKE_CURRENT_LIST_DIR}/test_new")
-
-  add_test(NAME test.new_tests COMMAND bitprim_blockchain_test_new)
-
-  add_dependencies(testsfer test.new_tests)
+  add_test(NAME bitprim_blockchain_test_new COMMAND bitprim_blockchain_test_new)
 
 endif()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # # local: test/bitprim_blockchain_requester_test

@@ -19,6 +19,7 @@
 
 #include <bitprim/keoken/state.hpp>
 
+#include <algorithm>
 #include <numeric>
 
 using libbitcoin::data_chunk;
@@ -32,7 +33,7 @@ using domain::amount_t;
 void state::create_asset(message::create_asset const& msg, 
                     payment_address const& owner,
                     size_t block_height, libbitcoin::hash_digest const& txid) {
-    domain::asset obj(asset_id_next_, msg.name(), msg.amount());
+    domain::asset obj(asset_id_next_, msg.name(), msg.amount(), owner);
 
     // synchro
     asset_list_.emplace_back(obj, block_height, txid);
@@ -59,6 +60,17 @@ bool state::asset_id_exists(domain::asset_id_t id) const {
     //sincro end
 }
 
+// private
+domain::amount_t state::get_balance(balance_value const& entries) const {
+    // precondition: sincro???
+
+    //sincro ???
+    return std::accumulate(entries.begin(), entries.end(), domain::amount_t(0), [](domain::amount_t bal, balance_entry const& entry) {
+        return bal + entry.amount;
+    });
+    //sincro end
+}
+
 domain::amount_t state::get_balance(domain::asset_id_t id, libbitcoin::wallet::payment_address const& addr) const {
     //sincro
     
@@ -67,14 +79,90 @@ domain::amount_t state::get_balance(domain::asset_id_t id, libbitcoin::wallet::p
         return domain::amount_t(0);
     }
 
-    auto const& entries = it->second;
-
-    return std::accumulate(entries.begin(), entries.end(), domain::amount_t(0), [](domain::amount_t bal, balance_entry const& entry) {
-        return bal + entry.amount;
-    });
-
+    return get_balance(it->second);
     //sincro end
 }
+
+state::get_assets_by_address_list state::get_assets_by_address(libbitcoin::wallet::payment_address const& addr) const {
+    get_assets_by_address_list res;
+
+    for (auto const& entry : asset_list_) {
+        // using balance_key = std::tuple<bitprim::keoken::domain::asset_id_t, libbitcoin::wallet::payment_address>;
+        balance_key key {entry.asset.id(), addr};
+        auto it = balance_.find(key);
+        if (it != balance_.end()) {
+            res.emplace_back(entry.asset.id(),
+                             entry.asset.name(),
+                             entry.asset.owner(),
+                             get_balance(it->second)
+                            );
+        }
+    }
+
+    return res;
+}
+
+state::get_assets_list state::get_assets() const {
+    get_assets_list res;
+
+    for (auto const& entry : asset_list_) {
+        res.emplace_back(entry.asset.id(),
+                            entry.asset.name(),
+                            entry.asset.owner(),
+                            entry.asset.amount()
+                        );
+    }
+
+    return res;
+}
+
+domain::asset state::get_asset_by_id(domain::asset_id_t id) const {
+    // precondition: id must exists in asset_list_
+
+    auto const cmp = [](asset_entry const& a, asset_entry const& b) {
+        return a.asset.id() < b.asset.id();
+    };
+
+    auto it = std::lower_bound(asset_list_.begin(), asset_list_.end(), id, cmp);
+    return it->asset;
+
+    // if (it != asset_list_.end() && !cmp(id, *it)) {
+}
+
+state::get_all_asset_addresses_list state::get_all_asset_addresses() const {
+    get_all_asset_addresses_list res;
+
+    for (auto const& bal : balance_) {
+        // dic_key = bal.first
+        // dic_value = bal.second //vector
+
+        auto asset = get_asset_by_id(std::get<0>(bal.first));
+
+        res.emplace_back(std::get<1>(bal.first),
+                         std::get<0>(bal.first),
+                         asset.name(),
+                         asset.owner(),
+                         get_balance(bal.second)
+                        );
+    }
+
+    return res;
+
+
+    // 3. listar todas las wallets con tokens en keoken (saldo mayor a cero)
+    /*/
+        input: NADA
+        out  : lista de 
+                    - address **
+                    - asset id
+                    - asset name
+                    - addr owner
+                    - amount
+    */
+}
+
+
+
 
 } // namespace keoken
 } // namespace bitprim
