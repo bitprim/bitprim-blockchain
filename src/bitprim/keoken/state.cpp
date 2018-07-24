@@ -33,13 +33,13 @@ using domain::amount_t;
 void state::create_asset(message::create_asset const& msg, 
                     payment_address const& owner,
                     size_t block_height, libbitcoin::hash_digest const& txid) {
-    domain::asset obj(asset_id_next_, obj.name(), obj.amount());
+    domain::asset obj(asset_id_next_, msg.name(), msg.amount());
 
     // synchro
     asset_list_.emplace_back(obj, block_height, txid);
  
     balance_.emplace(balance_key{asset_id_next_, owner}, 
-                     balance_value{balance_value_elem{obj.amount(), block_height, txid}});
+                     balance_value{balance_entry{obj.amount(), block_height, txid}});
     ++asset_id_next_;
     // synchro end
 }
@@ -71,8 +71,8 @@ domain::amount_t state::get_balance(domain::asset_id_t id, libbitcoin::wallet::p
 
     auto const& entries = it->second;
 
-    return std::accumulate(entries.begin(), entries.end(), domain::amount_t(0), [](domain::amount_t bal, balance_value_elem const& entry) {
-        return bal + std::get<0>(entry);
+    return std::accumulate(entries.begin(), entries.end(), domain::amount_t(0), [](domain::amount_t bal, balance_entry const& entry) {
+        return bal + entry.amount;
     });
 
     //sincro end

@@ -66,27 +66,59 @@ struct hash<bitprim::keoken::balance_key> {
 namespace bitprim {
 namespace keoken {
 
+struct asset_entry {
+    asset_entry(domain::asset asset, size_t block_height, libbitcoin::hash_digest txid)
+        : asset(asset), block_height(block_height), txid(txid)
+    {}
+
+    asset_entry() = default;
+    asset_entry(asset_entry const& x) = default;
+    asset_entry(asset_entry&& x) = default;
+    asset_entry& operator=(asset_entry const& x) = default;
+    asset_entry& operator=(asset_entry&& x) = default;
+
+    domain::asset asset;
+    size_t block_height;
+    libbitcoin::hash_digest txid;
+};
+
+struct balance_entry {
+    balance_entry(domain::amount_t amount, size_t block_height, libbitcoin::hash_digest txid)
+        : amount(amount), block_height(block_height), txid(txid)
+    {}
+
+    balance_entry() = default;
+    balance_entry(balance_entry const& x) = default;
+    balance_entry(balance_entry&& x) = default;
+    balance_entry& operator=(balance_entry const& x) = default;
+    balance_entry& operator=(balance_entry&& x) = default;
+
+    domain::amount_t amount;
+    size_t block_height;
+    libbitcoin::hash_digest txid;
+};
+
+
 class state {
     static constexpr domain::asset_id_t asset_id_initial = 1;
 public:    
-    using asset_element = std::tuple<domain::asset, size_t, libbitcoin::hash_digest>;
-    using asset_list_t = std::vector<asset_element>;
-    using balance_value_elem = std::tuple<domain::amount_t, size_t, libbitcoin::hash_digest>;
-    using balance_value = std::vector<balance_value_elem>;
+    using asset_list_t = std::vector<asset_entry>;
+    using balance_value = std::vector<balance_entry>;
     using balance_t = std::unordered_map<balance_key, balance_value>;
+    using payment_address = libbitcoin::wallet::payment_address;
 
     void create_asset(message::create_asset const& msg, 
-                      libbitcoin::wallet::payment_address const& owner,
+                      payment_address const& owner,
                       size_t block_height, libbitcoin::hash_digest const& txid);
 
     void create_balance_entry(message::send_tokens const& msg, 
-                              libbitcoin::wallet::payment_address const& source,
-                              libbitcoin::wallet::payment_address const& target, 
+                              payment_address const& source,
+                              payment_address const& target, 
                               size_t block_height, libbitcoin::hash_digest const& txid);
 
     bool asset_id_exists(domain::asset_id_t id) const;
 
-    domain::amount_t get_balance(domain::asset_id_t id, libbitcoin::wallet::payment_address const& addr) const;
+    domain::amount_t get_balance(domain::asset_id_t id, payment_address const& addr) const;
 
 private:
     domain::asset_id_t asset_id_next_ = asset_id_initial;
