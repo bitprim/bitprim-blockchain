@@ -59,6 +59,7 @@ option(WITH_CONSENSUS "Link bitprim-consensus and use for consensus checks." ON)
 # Implement --with-tests and declare WITH_TESTS.
 #------------------------------------------------------------------------------
 option(WITH_TESTS "Compile with unit tests." ON)
+option(WITH_TESTS_NEW "Compile with unit tests." OFF)
 
 # Implement --with-tools and declare WITH_TOOLS.
 #------------------------------------------------------------------------------
@@ -402,7 +403,7 @@ _group_sources(bitprim-blockchain "${CMAKE_CURRENT_LIST_DIR}")
 # Tests
 #==============================================================================
 
-if (WITH_TESTS)
+if (WITH_TESTS OR WITH_TESTS_NEW)
   enable_testing()
 endif()
 
@@ -437,6 +438,27 @@ if (WITH_TESTS)
     validate_transaction_tests
   )
 endif()
+
+if (WITH_TESTS_NEW)
+
+  add_custom_target(testsfer ALL
+      COMMAND ${CMAKE_CTEST_COMMAND} -C Debug --output-on-failure -R "test.+"
+      COMMENT "Build and run all the unit tests.")
+
+  add_executable(bitprim_blockchain_test_new
+          test_new/main.cpp
+  )
+
+  target_link_libraries(bitprim_blockchain_test_new PUBLIC bitprim-blockchain)
+
+  # _group_sources(bitprim_blockchain_test_new "${CMAKE_CURRENT_LIST_DIR}/test_new")
+
+  add_test(NAME test.new_tests COMMAND bitprim_blockchain_test_new)
+
+  add_dependencies(testsfer test.new_tests)
+
+endif()
+
 
 # # local: test/bitprim_blockchain_requester_test
 # #------------------------------------------------------------------------------

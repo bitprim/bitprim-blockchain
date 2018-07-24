@@ -119,7 +119,7 @@ class BitprimBlockchainConan(BitprimConanFile):
         # cmake.definitions["WITH_LITECOIN"] = option_on_off(self.options.with_litecoin)
         # cmake.definitions["WITH_REMOTE_DATABASE"] = option_on_off(self.options.with_remote_database)
         cmake.definitions["WITH_TESTS"] = option_on_off(self.options.with_tests)
-        cmake.definitions["WITH_TOOLS"] = option_on_off(self.options.with_tools)
+        cmake.definitions["WITH_TESTS_NEW"] = option_on_off(self.options.with_tests)
 
         cmake.definitions["WITH_TOOLS"] = option_on_off(self.options.with_tools)
 
