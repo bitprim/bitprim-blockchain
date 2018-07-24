@@ -263,6 +263,7 @@ set(bitprim_blockchain_sources
   src/settings.cpp
   src/version.cpp
 
+  src/bitprim/interface/block_chain.cpp
 )
 
 message(STATUS "WITH_KEOKEN: ${WITH_KEOKEN}")

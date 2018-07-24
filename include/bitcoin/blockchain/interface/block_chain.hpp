@@ -254,6 +254,34 @@ public:
     void fetch_block_locator(const chain::block::indexes& heights,
         block_locator_fetch_handler handler) const;
 
+
+    // Bitprim non-virtual functions.
+    //-------------------------------------------------------------------------
+    template <typename I>
+    void for_each_tx_hash(I f, I l, database::transaction_database const& tx_store, size_t height, bool witness, for_each_tx_handler handler) const {
+    #ifdef BITPRIM_CURRENCY_BCH
+        witness = false;
+    #endif
+        while (f != l) {
+            auto const& hash = *f;
+            auto const tx_result = tx_store.get(hash, max_size_t, true);
+
+            if ( ! tx_result) {
+                handler(error::operation_failed_16, 0, chain::transaction{});
+                return;
+            }
+            BITCOIN_ASSERT(tx_result.height() == height);
+            handler(error::success, height, tx_result.transaction(witness));
+            ++f;
+        }
+    }
+
+    void for_each_transaction(size_t from, size_t to, bool witness, for_each_tx_handler handler) const;
+
+    void for_each_transaction_non_coinbase(size_t from, size_t to, bool witness, for_each_tx_handler handler) const;
+
+
+
     // Server Queries.
     //-------------------------------------------------------------------------
 
