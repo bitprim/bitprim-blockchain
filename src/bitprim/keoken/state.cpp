@@ -119,8 +119,8 @@ state::get_assets_list state::get_assets() const {
 domain::asset state::get_asset_by_id(domain::asset_id_t id) const {
     // precondition: id must exists in asset_list_
 
-    auto const cmp = [](asset_entry const& a, asset_entry const& b) {
-        return a.asset.id() < b.asset.id();
+    auto const cmp = [](asset_entry const& a, domain::asset_id_t id) {
+        return a.asset.id() < id;
     };
 
     auto it = std::lower_bound(asset_list_.begin(), asset_list_.end(), id, cmp);
@@ -133,36 +133,23 @@ state::get_all_asset_addresses_list state::get_all_asset_addresses() const {
     get_all_asset_addresses_list res;
 
     for (auto const& bal : balance_) {
-        // dic_key = bal.first
-        // dic_value = bal.second //vector
+        auto const& bal_key = bal.first;
+        auto const& bal_value = bal.second;
+        auto const& asset_id = std::get<0>(bal_key);
+        auto const& amount_owner = std::get<1>(bal_key);
 
-        auto asset = get_asset_by_id(std::get<0>(bal.first));
+        auto asset = get_asset_by_id(asset_id);
 
-        res.emplace_back(std::get<1>(bal.first),
-                         std::get<0>(bal.first),
+        res.emplace_back(asset_id,
                          asset.name(),
                          asset.owner(),
-                         get_balance(bal.second)
+                         get_balance(bal_value),
+                         amount_owner
                         );
     }
 
     return res;
-
-
-    // 3. listar todas las wallets con tokens en keoken (saldo mayor a cero)
-    /*/
-        input: NADA
-        out  : lista de 
-                    - address **
-                    - asset id
-                    - asset name
-                    - addr owner
-                    - amount
-    */
 }
-
-
-
 
 } // namespace keoken
 } // namespace bitprim

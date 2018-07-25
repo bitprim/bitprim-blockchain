@@ -84,6 +84,11 @@ struct asset_entry {
     libbitcoin::hash_digest txid;
 };
 
+    // auto const cmp = [](asset_entry const& a, domain::asset_id_t id) {
+    //     return a.asset.id() < id;
+    // };
+
+
 struct balance_entry {
     balance_entry(domain::amount_t amount, size_t block_height, libbitcoin::hash_digest const& txid)
         : amount(amount), block_height(block_height), txid(txid)
@@ -118,7 +123,13 @@ struct get_assets_by_address_data {
 using get_assets_data = get_assets_by_address_data;
 
 struct get_all_asset_addresses_data : get_assets_by_address_data {
-    libbitcoin::wallet::payment_address amount_owner;   //TODO(fernando): quien es dueno del saldo
+
+    get_all_asset_addresses_data(domain::asset_id_t asset_id, std::string asset_name, libbitcoin::wallet::payment_address asset_creator, domain::amount_t amount, libbitcoin::wallet::payment_address amount_owner)
+        : get_assets_by_address_data(asset_id, std::move(asset_name), std::move(asset_creator), amount)
+        , amount_owner(std::move(amount_owner))
+    {}
+
+    libbitcoin::wallet::payment_address amount_owner;   //TODO(fernando): naming: quien es dueno del saldo
 };
 
 class state {
