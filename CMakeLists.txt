@@ -73,6 +73,9 @@ if (WITH_KEOKEN)
   add_definitions(-DWITH_KEOKEN)
 endif()
 
+
+# Implement --JUST_BITPRIM_SOURCES for linting.
+#------------------------------------------------------------------------------
 option(JUST_BITPRIM_SOURCES "Just Bitprim source code to be linted." OFF)
 if (JUST_BITPRIM_SOURCES)
   message(STATUS "Bitprim: Just Bitprim source code to be linted: enabled")
@@ -277,7 +280,7 @@ set(bitprim_blockchain_sources_just_bitprim
   src/bitprim/interface/block_chain.cpp
 )
 
-message(STATUS "TODO(fernando) WITH_KEOKEN: ${WITH_KEOKEN}")
+# message(STATUS "TODO(fernando) WITH_KEOKEN: ${WITH_KEOKEN}")
 
 if (WITH_KEOKEN)
   set(bitprim_blockchain_sources_just_bitprim 
@@ -289,7 +292,7 @@ endif()
 
 if (NOT JUST_BITPRIM_SOURCES)
   set(bitprim_blockchain_sources 
-    ${bitprim_blockchain_sources_just_libbitcoin}         
+    ${bitprim_blockchain_sources_just_libbitcoin}
   )
 endif()
 
