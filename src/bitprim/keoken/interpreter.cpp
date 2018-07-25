@@ -20,10 +20,8 @@
 #include <bitprim/keoken/interpreter.hpp>
 
 #include <bitcoin/bitcoin/chain/output.hpp>
-// #include <bitcoin/bitcoin/utility/container_sink.hpp>
 #include <bitcoin/bitcoin/utility/container_source.hpp>
 #include <bitcoin/bitcoin/utility/istream_reader.hpp>
-// #include <bitcoin/bitcoin/utility/ostream_writer.hpp>
 
 #include <bitprim/keoken/transaction_extractor.hpp>
 
@@ -91,7 +89,7 @@ payment_address interpreter::get_first_input_addr(transaction const& tx) const {
     bool out_coinbase;
 
     if ( ! fast_chain_.get_output(out_output, out_height, out_median_time_past, out_coinbase, 
-                    owner_input.previous_output(), libbitcoin::max_size_t, true)) {
+                                  owner_input.previous_output(), libbitcoin::max_size_t, true)) {
         return payment_address{};   //TODO(fernando): check if it has is_valid()
     }
 
@@ -111,11 +109,10 @@ bool interpreter::process_create_asset_version_0(size_t block_height, transactio
         return false;               //TODO(fernando): error codes
     }
 
-    state_.create_asset(msg, owner, block_height, tx.hash());
+    state_.create_asset(msg.name(), msg.amount(), owner, block_height, tx.hash());
 
     return true;
 }
-
 
 std::pair<payment_address, payment_address> interpreter::get_send_tokens_addrs(transaction const& tx) const {
     auto source = get_first_input_addr(tx);
@@ -133,7 +130,6 @@ std::pair<payment_address, payment_address> interpreter::get_send_tokens_addrs(t
 
     return {source, it->address()};
 }
-
 
 bool interpreter::process_send_tokens_version_0(size_t block_height, transaction const& tx, reader& source) {
     auto msg = message::send_tokens::factory_from_data(source);
@@ -159,49 +155,14 @@ bool interpreter::process_send_tokens_version_0(size_t block_height, transaction
         return false;               //TODO(fernando): error codes
     }
 
-    state_.create_balance_entry(msg, source_addr, target_addr, block_height, tx.hash());
+    state_.create_balance_entry(msg.asset_id(), msg.amount(), source_addr, target_addr, block_height, tx.hash());
 
     return true;
 }
 
-// void interpreter::extract_keoken_info(size_t from_block) {
-//     chain::block b;
-
-//     for each block in the blockchain from the genesis keoken block {
-//         for_each_keoken_tx(b, [](size_t block_height, transaction const& tx, data_chunk const& keo_data) {
-//             istream_reader source(data_source(keo_data));
-//             version_dispatcher(block_height, tx, source);
-//         });
-//     }
-// }
-
 } // namespace keoken
 } // namespace bitprim
 
-
-
-
-
-
-
-
-
-
-
-
-// STATUS? get_global_status() {
-
-//     std::vector<chain::block> blockchain;
-
-//     for (auto const& b : blockchain) {
-
-//         for_each_keoken_tx(b, [](size_t block_height, transaction const& tx, data_chunk const& keo_data) {
-//             version = keo_data[0] + keo_data[1];    //TODO(fernando): replace it
-//             hace_algo_con_version(block_height, tx, version, keo_data);
-//         });
-
-//     }
-// }
 
 
 /*

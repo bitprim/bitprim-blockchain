@@ -33,8 +33,13 @@ namespace keoken {
 
 class interpreter {
 public:
+
     explicit
     interpreter(libbitcoin::blockchain::fast_chain& fast_chain, state& st);
+
+    // non-copyable class
+    interpreter(interpreter const&) = delete;
+    interpreter& operator=(interpreter const&) = delete;
 
     bool process(size_t block_height, libbitcoin::chain::transaction const& tx);
 
@@ -46,15 +51,10 @@ private:
     bool version_0_type_dispatcher(size_t block_height, libbitcoin::chain::transaction const& tx, libbitcoin::reader& source);
     bool process_create_asset_version_0(size_t block_height, libbitcoin::chain::transaction const& tx, libbitcoin::reader& source);
     bool process_send_tokens_version_0(size_t block_height, libbitcoin::chain::transaction const& tx, libbitcoin::reader& source);
-    // void extract_keoken_info(size_t from_block);
 
     state& state_;
     libbitcoin::blockchain::fast_chain& fast_chain_;
 };
-
-void keoken_barrer_blockchain(size_t from, size_t to) {
-
-}
 
 } // namespace keoken
 } // namespace bitprim
