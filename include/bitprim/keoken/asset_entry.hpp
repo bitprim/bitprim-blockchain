@@ -19,14 +19,14 @@
 #ifndef BITPRIM_BLOCKCHAIN_KEOKEN_ASSET_ENTRY_HPP_
 #define BITPRIM_BLOCKCHAIN_KEOKEN_ASSET_ENTRY_HPP_
 
-#include <bitprim/keoken/domain/asset.hpp>
-#include <bitprim/keoken/domain/primitives.hpp>
+#include <bitprim/keoken/primitives.hpp>
+#include <bitprim/keoken/entities/asset.hpp>
 
 namespace bitprim {
 namespace keoken {
 
 struct asset_entry {
-    asset_entry(domain::asset asset, size_t block_height, libbitcoin::hash_digest const& txid)
+    asset_entry(entities::asset asset, size_t block_height, libbitcoin::hash_digest const& txid)
         : asset(std::move(asset))
         , block_height(block_height)
         , txid(txid)
@@ -38,7 +38,7 @@ struct asset_entry {
     // asset_entry& operator=(asset_entry const& x) = default;
     // asset_entry& operator=(asset_entry&& x) = default;
 
-    domain::asset asset;
+    entities::asset asset;
     size_t block_height;
     libbitcoin::hash_digest txid;
 };

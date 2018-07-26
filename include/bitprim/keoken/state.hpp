@@ -24,13 +24,11 @@
 
 #include <bitcoin/bitcoin/wallet/payment_address.hpp>
 
-
 #include <bitprim/keoken/asset_entry.hpp>
 #include <bitprim/keoken/balance.hpp>
 #include <bitprim/keoken/state_dto.hpp>
-
-#include <bitprim/keoken/domain/asset.hpp>
-#include <bitprim/keoken/domain/primitives.hpp>
+#include <bitprim/keoken/primitives.hpp>
+#include <bitprim/keoken/entities/asset.hpp>
 #include <bitprim/keoken/message/create_asset.hpp>
 #include <bitprim/keoken/message/send_tokens.hpp>
 
@@ -39,7 +37,7 @@ namespace bitprim {
 namespace keoken {
 
 //TODO(fernando): esto no va acá...
-// static constexpr domain::asset_id_t asset_id_initial = 1;
+// static constexpr asset_id_t asset_id_initial = 1;
 
 class state {
 public:    
@@ -53,7 +51,7 @@ public:
     using get_all_asset_addresses_list = std::vector<get_all_asset_addresses_data>;
 
     explicit
-    state(domain::asset_id_t asset_id_initial);
+    state(asset_id_t asset_id_initial);
 
     // non-copyable class
     state(state const&) = delete;
@@ -61,28 +59,28 @@ public:
 
     // Commands.
     // ---------------------------------------------------------------------------------
-    void create_asset(std::string asset_name, domain::amount_t asset_amount, 
+    void create_asset(std::string asset_name, amount_t asset_amount, 
                       payment_address owner,
                       size_t block_height, libbitcoin::hash_digest const& txid);
 
-    void create_balance_entry(domain::asset_id_t asset_id, domain::amount_t asset_amount,
+    void create_balance_entry(asset_id_t asset_id, amount_t asset_amount,
                               payment_address source,
                               payment_address target, 
                               size_t block_height, libbitcoin::hash_digest const& txid);
 
     // Queries.
     // ---------------------------------------------------------------------------------
-    bool asset_id_exists(domain::asset_id_t id) const;
-    domain::amount_t get_balance(domain::asset_id_t id, payment_address const& addr) const;
+    bool asset_id_exists(asset_id_t id) const;
+    amount_t get_balance(asset_id_t id, payment_address const& addr) const;
     get_assets_by_address_list get_assets_by_address(libbitcoin::wallet::payment_address const& addr) const;
     get_assets_list get_assets() const;
     get_all_asset_addresses_list get_all_asset_addresses() const;
 
 private:
-    domain::asset get_asset_by_id(domain::asset_id_t id) const;
-    domain::amount_t get_balance_internal(balance_value const& entries) const;
+    entities::asset get_asset_by_id(asset_id_t id) const;
+    amount_t get_balance_internal(balance_value const& entries) const;
 
-    domain::asset_id_t asset_id_next_;
+    asset_id_t asset_id_next_;
     asset_list_t asset_list_;
     balance_t balance_;
 

@@ -29,9 +29,6 @@ using libbitcoin::wallet::payment_address;
 namespace bitprim {
 namespace keoken {
 
-using domain::amount_t;
-using domain::asset_id_t;
-
 state::state(asset_id_t asset_id_initial)
     : asset_id_next_(asset_id_initial)
 {}
@@ -40,7 +37,7 @@ void state::create_asset(std::string asset_name, amount_t asset_amount,
                     payment_address owner,
                     size_t block_height, hash_digest const& txid) {
 
-    domain::asset obj(asset_id_next_, std::move(asset_name), asset_amount, owner);
+    entities::asset obj(asset_id_next_, std::move(asset_name), asset_amount, owner);
 
     boost::unique_lock<boost::shared_mutex> lock(mutex_);
 
@@ -61,7 +58,7 @@ void state::create_balance_entry(asset_id_t asset_id, amount_t asset_amount,
     boost::unique_lock<boost::shared_mutex> lock(mutex_);
 
     //TODO(fernando): emplace inside a lock? It is a good practice? is construct outside and push preferible?
-    balance_[balance_key{asset_id, std::move(source)}].emplace_back(domain::amount_t(-1) * asset_amount, block_height, txid);
+    balance_[balance_key{asset_id, std::move(source)}].emplace_back(amount_t(-1) * asset_amount, block_height, txid);
     balance_[balance_key{asset_id, std::move(target)}].emplace_back(asset_amount, block_height, txid);
 }
 
@@ -71,19 +68,19 @@ bool state::asset_id_exists(asset_id_t id) const {
 }
 
 // private
-domain::amount_t state::get_balance_internal(balance_value const& entries) const {
+amount_t state::get_balance_internal(balance_value const& entries) const {
     // precondition: mutex_.lock_shared() called
-    return std::accumulate(entries.begin(), entries.end(), domain::amount_t(0), [](domain::amount_t bal, balance_entry const& entry) {
+    return std::accumulate(entries.begin(), entries.end(), amount_t(0), [](amount_t bal, balance_entry const& entry) {
         return bal + entry.amount;
     });
 }
 
-domain::amount_t state::get_balance(asset_id_t id, libbitcoin::wallet::payment_address const& addr) const {
+amount_t state::get_balance(asset_id_t id, libbitcoin::wallet::payment_address const& addr) const {
     boost::shared_lock<boost::shared_mutex> lock(mutex_);
     
     auto it = balance_.find(balance_key{id, addr});
     if (it == balance_.end()) {
-        return domain::amount_t(0);
+        return amount_t(0);
     }
 
     return get_balance_internal(it->second);
@@ -130,7 +127,7 @@ state::get_assets_list state::get_assets() const {
 }
 
 // private
-domain::asset state::get_asset_by_id(asset_id_t id) const {
+entities::asset state::get_asset_by_id(asset_id_t id) const {
     // precondition: id must exists in asset_list_
     // precondition: mutex_.lock_shared() called
 

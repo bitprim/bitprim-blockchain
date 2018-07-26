@@ -21,13 +21,13 @@
 
 #include <tuple>
 
-#include <bitprim/keoken/domain/asset.hpp>
-#include <bitprim/keoken/domain/primitives.hpp>
+#include <bitprim/keoken/primitives.hpp>
+#include <bitprim/keoken/entities/asset.hpp>
 
 namespace bitprim {
 namespace keoken {
 
-using balance_key = std::tuple<domain::asset_id_t, libbitcoin::wallet::payment_address>;
+using balance_key = std::tuple<asset_id_t, libbitcoin::wallet::payment_address>;
 
 } // namespace keoken
 } // namespace bitprim
@@ -45,7 +45,7 @@ struct hash<bitprim::keoken::balance_key> {
         // boost::hash_combine(seed, std::get<0>(key));
         // boost::hash_combine(seed, std::get<1>(key));
         // return seed;
-        size_t h1 = std::hash<bitprim::keoken::domain::asset_id_t>{}(std::get<0>(key));
+        size_t h1 = std::hash<bitprim::keoken::asset_id_t>{}(std::get<0>(key));
         size_t h2 = std::hash<libbitcoin::wallet::payment_address>{}(std::get<1>(key));
         return h1 ^ (h2 << 1u);
     }
@@ -57,7 +57,7 @@ namespace bitprim {
 namespace keoken {
 
 struct balance_entry {
-    balance_entry(domain::amount_t amount, size_t block_height, libbitcoin::hash_digest const& txid)
+    balance_entry(amount_t amount, size_t block_height, libbitcoin::hash_digest const& txid)
         : amount(amount), block_height(block_height), txid(txid)
     {}
 
@@ -67,7 +67,7 @@ struct balance_entry {
     // balance_entry& operator=(balance_entry const& x) = default;
     // balance_entry& operator=(balance_entry&& x) = default;
 
-    domain::amount_t amount;
+    amount_t amount;
     size_t block_height;
     libbitcoin::hash_digest txid;
 };

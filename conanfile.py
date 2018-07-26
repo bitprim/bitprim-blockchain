@@ -65,6 +65,9 @@ class BitprimBlockchainConan(BitprimConanFile):
     package_files = "build/lbitprim-blockchain.a"
     build_policy = "missing"
 
+    @property
+    def is_keoken(self):
+        return self.options.currency == "BCH" and self.options.get_safe("keoken")
 
     def requirements(self):
         self.requires("boost/1.66.0@bitprim/stable")
@@ -84,6 +87,11 @@ class BitprimBlockchainConan(BitprimConanFile):
             if self.options.shared and self.msvc_mt_build:
                 self.options.remove("shared")
 
+        if self.options.keoken and self.options.currency != "BCH":
+            self.output.warning("Keoken is only enabled for BCH, for the moment. Removing Keoken support")
+            self.options.remove("keoken")
+
+
     def configure(self):
         if self.settings.arch == "x86_64" and self.options.microarchitecture == "_DUMMY_":
             del self.options.fix_march
@@ -93,6 +101,12 @@ class BitprimBlockchainConan(BitprimConanFile):
         if self.settings.arch == "x86_64":
             march_conan_manip(self)
             self.options["*"].microarchitecture = self.options.microarchitecture
+
+        if self.options.keoken and self.options.currency != "BCH":
+            self.output.warn("For the moment Keoken is only enabled for BCH. Building without Keoken support...")
+            del self.options.keoken
+        else:
+            self.options["*"].keoken = self.options.keoken
 
         self.options["*"].currency = self.options.currency
         self.output.info("Compiling for currency: %s" % (self.options.currency,))
@@ -122,9 +136,7 @@ class BitprimBlockchainConan(BitprimConanFile):
         cmake.definitions["WITH_TESTS_NEW"] = option_on_off(self.options.with_tests)
 
         cmake.definitions["WITH_TOOLS"] = option_on_off(self.options.with_tools)
-
-        cmake.definitions["WITH_KEOKEN"] = option_on_off(self.options.keoken)
-
+        cmake.definitions["WITH_KEOKEN"] = option_on_off(self.is_keoken)
         cmake.definitions["CURRENCY"] = self.options.currency
 
         if self.settings.compiler != "Visual Studio":

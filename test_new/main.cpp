@@ -40,7 +40,7 @@ TEST_CASE("[state_asset_id_exists_not_empty] ") {
     state state_(0);
 
     std::string name = "Test";
-    domain::amount_t amount = 1559;
+    amount_t amount = 1559;
     size_t height = 456;
     payment_address addr("moNQd8TVGogcLsmPzNN2QdFwDfcAZFfUCr");
     const hash_digest txid = hash_literal("8b4b9487199ed6668cf6135f29f832c215ab8d32a32c323923594e7475dece25");
@@ -63,7 +63,7 @@ TEST_CASE("[state_get_assets_not_empty] ") {
     state state_(0);
 
     std::string name = "Test";
-    domain::amount_t amount = 1559;
+    amount_t amount = 1559;
     size_t height = 456;
     payment_address addr("moNQd8TVGogcLsmPzNN2QdFwDfcAZFfUCr");
     const hash_digest txid = hash_literal("8b4b9487199ed6668cf6135f29f832c215ab8d32a32c323923594e7475dece25");
@@ -86,7 +86,7 @@ TEST_CASE("[state_create_asset] ") {
     state state_(0);
 
     std::string name = "Test";
-    domain::amount_t amount = 1559;
+    amount_t amount = 1559;
     size_t height = 456;
     payment_address addr("moNQd8TVGogcLsmPzNN2QdFwDfcAZFfUCr");
     const hash_digest txid = hash_literal("8b4b9487199ed6668cf6135f29f832c215ab8d32a32c323923594e7475dece25");
@@ -112,7 +112,7 @@ TEST_CASE("[state_create_balance_entry] ") {
     state state_(0);
 
     std::string name = "Test";
-    domain::amount_t amount = 1559;
+    amount_t amount = 1559;
     size_t height = 456;
     payment_address source("moNQd8TVGogcLsmPzNN2QdFwDfcAZFfUCr");
     payment_address destination("1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cE");
@@ -120,7 +120,7 @@ TEST_CASE("[state_create_balance_entry] ") {
 
     state_.create_asset(name, amount, source, height, txid);
     
-    domain::amount_t amount_to_transfer = 5;
+    amount_t amount_to_transfer = 5;
     state_.create_balance_entry(0, amount_to_transfer, source, destination, height, txid );
 
     auto const& balance = state_.get_balance(0,source);
@@ -138,7 +138,7 @@ TEST_CASE("[state_get_assets_by_address] ") {
     state state_(0);
 
     std::string name = "Test";
-    domain::amount_t amount = 1559;
+    amount_t amount = 1559;
     size_t height = 456;
     payment_address source("moNQd8TVGogcLsmPzNN2QdFwDfcAZFfUCr");
     payment_address destination("1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cE");
@@ -146,7 +146,7 @@ TEST_CASE("[state_get_assets_by_address] ") {
 
     state_.create_asset(name, amount, source, height, txid);
     
-    domain::amount_t amount_to_transfer = 5;
+    amount_t amount_to_transfer = 5;
     state_.create_balance_entry(0, amount_to_transfer, source, destination, height, txid );
 
     auto const& list_source = state_.get_assets_by_address(source);
@@ -176,7 +176,7 @@ TEST_CASE("[state_get_all_asset_addresses] ") {
     state state_(0);
 
     std::string name = "Test";
-    domain::amount_t amount = 1559;
+    amount_t amount = 1559;
     size_t height = 456;
     payment_address source("moNQd8TVGogcLsmPzNN2QdFwDfcAZFfUCr");
     payment_address destination("1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cE");
@@ -184,7 +184,7 @@ TEST_CASE("[state_get_all_asset_addresses] ") {
 
     state_.create_asset(name, amount, source, height, txid);
     
-    domain::amount_t amount_to_transfer = 5;
+    amount_t amount_to_transfer = 5;
     state_.create_balance_entry(0, amount_to_transfer, source, destination, height, txid );
 
     auto const& list_source = state_.get_all_asset_addresses();
