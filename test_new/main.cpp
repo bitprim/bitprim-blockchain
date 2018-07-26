@@ -31,8 +31,8 @@ using libbitcoin::wallet::payment_address;
 TEST_CASE("[state_asset_id_exists_empty] ") {
 
     state state_(0);
-    CHECK( ! state_.asset_id_exists(0));
-    CHECK( ! state_.asset_id_exists(1));
+    REQUIRE( ! state_.asset_id_exists(0));
+    REQUIRE( ! state_.asset_id_exists(1));
 }
 
 TEST_CASE("[state_asset_id_exists_not_empty] ") {
@@ -47,14 +47,14 @@ TEST_CASE("[state_asset_id_exists_not_empty] ") {
 
     state_.create_asset(name, amount, addr, height, txid);
     
-    CHECK(state_.asset_id_exists(0));
+    REQUIRE(state_.asset_id_exists(0));
 }
 
 TEST_CASE("[state_get_assets_empty] ") {
 
     state state_(1);
     auto const& ret = state_.get_assets();
-    CHECK(ret.size() == 0);
+    REQUIRE(ret.size() == 0);
 }
 
 
@@ -71,14 +71,14 @@ TEST_CASE("[state_get_assets_not_empty] ") {
     state_.create_asset(name, amount, addr, height, txid);
 
     auto const& ret = state_.get_assets();
-    CHECK(ret.size() == 1);
+    REQUIRE(ret.size() == 1);
 
     auto const new_asset = ret[0];
 
-    CHECK(new_asset.asset_id == 0);
-    CHECK(new_asset.asset_name == name);
-    CHECK(new_asset.amount == amount);
-    CHECK(new_asset.asset_creator == addr);
+    REQUIRE(new_asset.asset_id == 0);
+    REQUIRE(new_asset.asset_name == name);
+    REQUIRE(new_asset.amount == amount);
+    REQUIRE(new_asset.asset_creator == addr);
 }
 
 TEST_CASE("[state_create_asset] ") {
@@ -97,14 +97,14 @@ TEST_CASE("[state_create_asset] ") {
 
     auto const new_asset = ret[0];
 
-    CHECK(new_asset.asset_id == 0);
-    CHECK(new_asset.asset_name == name);
-    CHECK(new_asset.amount == amount);
-    CHECK(new_asset.asset_creator == addr);
+    REQUIRE(new_asset.asset_id == 0);
+    REQUIRE(new_asset.asset_name == name);
+    REQUIRE(new_asset.amount == amount);
+    REQUIRE(new_asset.asset_creator == addr);
 
     auto const& balance = state_.get_balance(0,addr);
 
-     CHECK(balance == 1559);
+     REQUIRE(balance == 1559);
 }
 
 TEST_CASE("[state_create_balance_entry] ") {
@@ -125,11 +125,11 @@ TEST_CASE("[state_create_balance_entry] ") {
 
     auto const& balance = state_.get_balance(0,source);
 
-     CHECK(balance == 1554);
+     REQUIRE(balance == 1554);
 
      auto const& balance_destination = state_.get_balance(0,destination);
 
-     CHECK(balance_destination == 5);
+     REQUIRE(balance_destination == 5);
 }
 
 
@@ -152,22 +152,22 @@ TEST_CASE("[state_get_assets_by_address] ") {
     auto const& list_source = state_.get_assets_by_address(source);
     auto const& list_destination= state_.get_assets_by_address(destination);
 
-    CHECK(list_source.size() == 1);
-    CHECK(list_destination.size() == 1);
+    REQUIRE(list_source.size() == 1);
+    REQUIRE(list_destination.size() == 1);
 
     auto const asset_1 = list_source[0];
 
-    CHECK(asset_1.asset_id == 0);
-    CHECK(asset_1.asset_name == name);
-    CHECK(asset_1.amount == amount - amount_to_transfer);
-    CHECK(asset_1.asset_creator == source);
+    REQUIRE(asset_1.asset_id == 0);
+    REQUIRE(asset_1.asset_name == name);
+    REQUIRE(asset_1.amount == amount - amount_to_transfer);
+    REQUIRE(asset_1.asset_creator == source);
 
     auto const asset_2 = list_destination[0];
 
-    CHECK(asset_2.asset_id == 0);
-    CHECK(asset_2.asset_name == name);
-    CHECK(asset_2.amount == amount_to_transfer);
-    CHECK(asset_2.asset_creator == source);
+    REQUIRE(asset_2.asset_id == 0);
+    REQUIRE(asset_2.asset_name == name);
+    REQUIRE(asset_2.amount == amount_to_transfer);
+    REQUIRE(asset_2.asset_creator == source);
 }
 
 
@@ -189,22 +189,22 @@ TEST_CASE("[state_get_all_asset_addresses] ") {
 
     auto const& list_source = state_.get_all_asset_addresses();
     
-    CHECK(list_source.size() == 2);
+    REQUIRE(list_source.size() == 2);
 
     auto const asset_1 = list_source[0];
 
-    CHECK(asset_1.asset_id == 0);
-    CHECK(asset_1.asset_name == name);
-    CHECK(asset_1.amount == amount - amount_to_transfer);
-    CHECK(asset_1.asset_creator == source);
-    CHECK(asset_1.amount_owner == source);
+    REQUIRE(asset_1.asset_id == 0);
+    REQUIRE(asset_1.asset_name == name);
+    REQUIRE(asset_1.amount == amount - amount_to_transfer);
+    REQUIRE(asset_1.asset_creator == source);
+    REQUIRE(asset_1.amount_owner == source);
 
     auto const asset_2 = list_source[1];
 
-    CHECK(asset_2.asset_id == 0);
-    CHECK(asset_2.asset_name == name);
-    CHECK(asset_2.amount == amount_to_transfer);
-    CHECK(asset_2.asset_creator == source);
+    REQUIRE(asset_2.asset_id == 0);
+    REQUIRE(asset_2.asset_name == name);
+    REQUIRE(asset_2.amount == amount_to_transfer);
+    REQUIRE(asset_2.asset_creator == source);
 }
 
 
