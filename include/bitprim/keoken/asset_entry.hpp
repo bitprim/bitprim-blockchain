@@ -20,7 +20,7 @@
 #define BITPRIM_BLOCKCHAIN_KEOKEN_ASSET_ENTRY_HPP_
 
 #include <bitprim/keoken/domain/asset.hpp>
-#include <bitprim/keoken/domain/base.hpp>
+#include <bitprim/keoken/domain/primitives.hpp>
 
 namespace bitprim {
 namespace keoken {

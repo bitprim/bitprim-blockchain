@@ -30,7 +30,7 @@
 #include <bitprim/keoken/state_dto.hpp>
 
 #include <bitprim/keoken/domain/asset.hpp>
-#include <bitprim/keoken/domain/base.hpp>
+#include <bitprim/keoken/domain/primitives.hpp>
 #include <bitprim/keoken/message/create_asset.hpp>
 #include <bitprim/keoken/message/send_tokens.hpp>
 

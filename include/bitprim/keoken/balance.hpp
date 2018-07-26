@@ -22,7 +22,7 @@
 #include <tuple>
 
 #include <bitprim/keoken/domain/asset.hpp>
-#include <bitprim/keoken/domain/base.hpp>
+#include <bitprim/keoken/domain/primitives.hpp>
 
 namespace bitprim {
 namespace keoken {
