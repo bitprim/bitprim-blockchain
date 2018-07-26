@@ -485,31 +485,17 @@ endif()
 # endif()
 
 
-
-
-
 if (WITH_TESTS_NEW)
 
   add_executable(bitprim_blockchain_test_new
           test_new/main.cpp
   )
+  
   target_link_libraries(bitprim_blockchain_test_new PUBLIC bitprim-blockchain)
 
   add_test(NAME bitprim_blockchain_test_new COMMAND bitprim_blockchain_test_new)
 
 endif()
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # # local: test/bitprim_blockchain_requester_test

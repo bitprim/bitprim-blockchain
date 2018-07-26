@@ -20,9 +20,11 @@
 #ifndef BITPRIM_BLOCKCHAIN_KEOKEN_INTERPRETER_HPP_
 #define BITPRIM_BLOCKCHAIN_KEOKEN_INTERPRETER_HPP_
 
+#include <bitcoin/blockchain/interface/fast_chain.hpp>
+
 #include <bitcoin/bitcoin/chain/transaction.hpp>
 #include <bitcoin/bitcoin/utility/reader.hpp>
-#include <bitcoin/blockchain/interface/fast_chain.hpp>
+
 
 #include <bitprim/keoken/message/base.hpp>
 #include <bitprim/keoken/message/create_asset.hpp>
