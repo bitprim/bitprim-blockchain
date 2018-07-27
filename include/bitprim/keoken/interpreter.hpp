@@ -25,7 +25,7 @@
 #include <bitcoin/bitcoin/chain/transaction.hpp>
 #include <bitcoin/bitcoin/utility/reader.hpp>
 
-
+#include <bitprim/keoken/error.hpp>
 #include <bitprim/keoken/message/base.hpp>
 #include <bitprim/keoken/message/create_asset.hpp>
 #include <bitprim/keoken/state.hpp>
@@ -35,7 +35,6 @@ namespace keoken {
 
 class interpreter {
 public:
-
     explicit
     interpreter(libbitcoin::blockchain::fast_chain& fast_chain, state& st);
 
@@ -43,16 +42,16 @@ public:
     interpreter(interpreter const&) = delete;
     interpreter& operator=(interpreter const&) = delete;
 
-    bool process(size_t block_height, libbitcoin::chain::transaction const& tx);
+    error::error_code_t process(size_t block_height, libbitcoin::chain::transaction const& tx);
 
 private:
     libbitcoin::wallet::payment_address get_first_input_addr(libbitcoin::chain::transaction const& tx) const;
     std::pair<libbitcoin::wallet::payment_address, libbitcoin::wallet::payment_address> get_send_tokens_addrs(libbitcoin::chain::transaction const& tx) const;
     
-    bool version_dispatcher(size_t block_height, libbitcoin::chain::transaction const& tx, libbitcoin::reader& source);
-    bool version_0_type_dispatcher(size_t block_height, libbitcoin::chain::transaction const& tx, libbitcoin::reader& source);
-    bool process_create_asset_version_0(size_t block_height, libbitcoin::chain::transaction const& tx, libbitcoin::reader& source);
-    bool process_send_tokens_version_0(size_t block_height, libbitcoin::chain::transaction const& tx, libbitcoin::reader& source);
+    error::error_code_t version_dispatcher(size_t block_height, libbitcoin::chain::transaction const& tx, libbitcoin::reader& source);
+    error::error_code_t version_0_type_dispatcher(size_t block_height, libbitcoin::chain::transaction const& tx, libbitcoin::reader& source);
+    error::error_code_t process_create_asset_version_0(size_t block_height, libbitcoin::chain::transaction const& tx, libbitcoin::reader& source);
+    error::error_code_t process_send_tokens_version_0(size_t block_height, libbitcoin::chain::transaction const& tx, libbitcoin::reader& source);
 
     state& state_;
     libbitcoin::blockchain::fast_chain& fast_chain_;

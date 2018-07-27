@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2018 Bitprim Inc.
+# Copyright (c) 2016-2018 Bitprim Inc.
 #
 # This file is part of Bitprim.
 #
@@ -17,15 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
 from conans import CMake
-from ci_utils import option_on_off, get_version, get_conan_req_version, march_conan_manip, pass_march_to_compiler
+from ci_utils import option_on_off, march_conan_manip, pass_march_to_compiler
 from ci_utils import BitprimConanFile
 
 class BitprimBlockchainConan(BitprimConanFile):
     name = "bitprim-blockchain"
     # version = get_version()
-    license = "http://www.boost.org/users/license.html"  #TODO(fernando): change to bitprim licence file
+    license = "http://www.boost.org/users/license.html"
     url = "https://github.com/bitprim/bitprim-blockchain/blob/conan-build/conanfile.py"
     description = "Bitprim Blockchain Library"
     settings = "os", "compiler", "build_type", "arch"

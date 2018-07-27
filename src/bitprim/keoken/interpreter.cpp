@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017-2018 Bitprim Inc.
+ * Copyright (c) 2016-2018 Bitprim Inc.
  *
  * This file is part of Bitprim.
  *
@@ -34,13 +34,15 @@ using libbitcoin::wallet::payment_address;
 namespace bitprim {
 namespace keoken {
 
+using error::error_code_t;
+
 // explicit
 interpreter::interpreter(libbitcoin::blockchain::fast_chain& fast_chain, state& st)
     : fast_chain_(fast_chain)
     , state_(st)
 {}
 
-bool interpreter::process(size_t block_height, transaction const& tx) {
+error_code_t interpreter::process(size_t block_height, transaction const& tx) {
     using libbitcoin::istream_reader;
     using libbitcoin::data_source;
 
@@ -51,25 +53,24 @@ bool interpreter::process(size_t block_height, transaction const& tx) {
 
         return version_dispatcher(block_height, tx, source);
     }
-    return false; //TODO(fernando): error code
+    return error::not_keoken_tx;
 }
 
-bool interpreter::version_dispatcher(size_t block_height, transaction const& tx, reader& source) {
+error_code_t interpreter::version_dispatcher(size_t block_height, transaction const& tx, reader& source) {
 
     auto version = source.read_2_bytes_big_endian();
-    if ( ! source) return false;
+    if ( ! source) return error::invalid_version_number;
 
     switch (version) {
         case 0x00:      //TODO(fernando): enum
             return version_0_type_dispatcher(block_height, tx, source);
     }
-
-    return false;
+    return error::not_recognized_version_number;
 }
 
-bool interpreter::version_0_type_dispatcher(size_t block_height, transaction const& tx, reader& source) {
+error_code_t interpreter::version_0_type_dispatcher(size_t block_height, transaction const& tx, reader& source) {
     auto type = source.read_2_bytes_big_endian();
-    if ( ! source) return false;
+    if ( ! source) return error::invalid_type;
 
     switch (type) {
         case 0x00:      //TODO(fernando): enum, create asset 
@@ -77,7 +78,7 @@ bool interpreter::version_0_type_dispatcher(size_t block_height, transaction con
         case 0x01:
             return process_send_tokens_version_0(block_height, tx, source);
     }
-    return false;
+    return error::not_recognized_type;
 }
 
 payment_address interpreter::get_first_input_addr(transaction const& tx) const {
@@ -90,28 +91,27 @@ payment_address interpreter::get_first_input_addr(transaction const& tx) const {
 
     if ( ! fast_chain_.get_output(out_output, out_height, out_median_time_past, out_coinbase, 
                                   owner_input.previous_output(), libbitcoin::max_size_t, true)) {
-        return payment_address{};   //TODO(fernando): check if it has is_valid()
+        return payment_address{};
     }
 
     return out_output.address();
 }
 
-bool interpreter::process_create_asset_version_0(size_t block_height, transaction const& tx, reader& source) {
+error_code_t interpreter::process_create_asset_version_0(size_t block_height, transaction const& tx, reader& source) {
     auto msg = message::create_asset::factory_from_data(source);
-    if ( ! source) return false;    //TODO(fernando): error codes
+    if ( ! source) return error::invalid_create_asset_message;
 
     if (msg.amount() <= 0) {
-        return false;               //TODO(fernando): error codes
+        return error::invalid_asset_amount;
     }
 
     auto const owner = get_first_input_addr(tx);
     if ( ! owner) {
-        return false;               //TODO(fernando): error codes
+        return error::invalid_asset_creator;
     }
 
-    state_.create_asset(msg.name(), msg.amount(), owner, block_height, tx.hash());
-
-    return true;
+    state_.create_asset(msg.name(), msg.amount(), std::move(owner), block_height, tx.hash());
+    return error::success;
 }
 
 std::pair<payment_address, payment_address> interpreter::get_send_tokens_addrs(transaction const& tx) const {
@@ -125,39 +125,37 @@ std::pair<payment_address, payment_address> interpreter::get_send_tokens_addrs(t
     });
 
     if (it == tx.outputs().end()) {
-        return {payment_address{}, payment_address{}};        
+        return {std::move(source), payment_address{}};        
     }
 
-    return {source, it->address()};
+    return {std::move(source), it->address()};
 }
 
-bool interpreter::process_send_tokens_version_0(size_t block_height, transaction const& tx, reader& source) {
+error_code_t interpreter::process_send_tokens_version_0(size_t block_height, transaction const& tx, reader& source) {
     auto msg = message::send_tokens::factory_from_data(source);
-    if ( ! source) return false;
+    if ( ! source) return error::invalid_send_tokens_message;
 
     if ( ! state_.asset_id_exists(msg.asset_id())) {
-        return false;
+        return error::asset_id_does_not_exist;
     }
 
     if (msg.amount() <= 0) {
-        return false;               //TODO(fernando): error codes
+        return error::invalid_asset_amount;
     }
   
     auto wallets = get_send_tokens_addrs(tx);
     payment_address const& source_addr = wallets.first;
     payment_address const& target_addr = wallets.second;
 
-    if ( ! source_addr || ! target_addr) {
-        return false;               //TODO(fernando): error codes
-    }
+    if ( ! source_addr) return error::invalid_source_address;
+    if ( ! target_addr) return error::invalid_target_address;
 
     if (state_.get_balance(msg.asset_id(), source_addr) < msg.amount()) {
-        return false;               //TODO(fernando): error codes
+        return error::insufficient_money;
     }
 
     state_.create_balance_entry(msg.asset_id(), msg.amount(), source_addr, target_addr, block_height, tx.hash());
-
-    return true;
+    return error::success;
 }
 
 } // namespace keoken
