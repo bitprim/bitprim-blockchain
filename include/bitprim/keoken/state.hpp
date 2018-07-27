@@ -26,11 +26,11 @@
 
 #include <bitprim/keoken/asset_entry.hpp>
 #include <bitprim/keoken/balance.hpp>
-#include <bitprim/keoken/state_dto.hpp>
-#include <bitprim/keoken/primitives.hpp>
 #include <bitprim/keoken/entities/asset.hpp>
 #include <bitprim/keoken/message/create_asset.hpp>
 #include <bitprim/keoken/message/send_tokens.hpp>
+#include <bitprim/keoken/primitives.hpp>
+#include <bitprim/keoken/state_dto.hpp>
 
 namespace bitprim {
 namespace keoken {

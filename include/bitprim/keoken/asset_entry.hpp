@@ -19,8 +19,8 @@
 #ifndef BITPRIM_BLOCKCHAIN_KEOKEN_ASSET_ENTRY_HPP_
 #define BITPRIM_BLOCKCHAIN_KEOKEN_ASSET_ENTRY_HPP_
 
-#include <bitprim/keoken/primitives.hpp>
 #include <bitprim/keoken/entities/asset.hpp>
+#include <bitprim/keoken/primitives.hpp>
 
 namespace bitprim {
 namespace keoken {

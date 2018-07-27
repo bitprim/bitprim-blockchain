@@ -21,8 +21,8 @@
 
 #include <tuple>
 
-#include <bitprim/keoken/primitives.hpp>
 #include <bitprim/keoken/entities/asset.hpp>
+#include <bitprim/keoken/primitives.hpp>
 
 namespace bitprim {
 namespace keoken {

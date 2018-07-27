@@ -21,8 +21,8 @@
 
 #include <bitcoin/bitcoin/wallet/payment_address.hpp>
 
-#include <bitprim/keoken/primitives.hpp>
 #include <bitprim/keoken/entities/asset.hpp>
+#include <bitprim/keoken/primitives.hpp>
 
 namespace bitprim {
 namespace keoken {
