@@ -251,13 +251,12 @@ public:
     void fetch_block_locator(const chain::block::indexes& heights,
         block_locator_fetch_handler handler) const override;
 
-
     // Bitprim non-virtual functions.
     //-------------------------------------------------------------------------
     template <typename I>
     void for_each_tx_hash(I f, I l, database::transaction_database const& tx_store, size_t height, bool witness, for_each_tx_handler handler) const {
     #ifdef BITPRIM_CURRENCY_BCH
-        witness = false;
+        witness = false;    //TODO(fernando): check what to do here. I dont like it
     #endif
         while (f != l) {
             auto const& hash = *f;
