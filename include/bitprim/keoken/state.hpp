@@ -32,12 +32,8 @@
 #include <bitprim/keoken/message/create_asset.hpp>
 #include <bitprim/keoken/message/send_tokens.hpp>
 
-
 namespace bitprim {
 namespace keoken {
-
-//TODO(fernando): esto no va acá...
-// static constexpr asset_id_t asset_id_initial = 1;
 
 class state {
 public:    

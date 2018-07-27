@@ -61,8 +61,8 @@ error_code_t interpreter::version_dispatcher(size_t block_height, transaction co
     auto version = source.read_2_bytes_big_endian();
     if ( ! source) return error::invalid_version_number;
 
-    switch (version) {
-        case 0x00:      //TODO(fernando): enum
+    switch (static_cast<version_t>(version)) {
+        case version_t::zero:
             return version_0_type_dispatcher(block_height, tx, source);
     }
     return error::not_recognized_version_number;
@@ -72,10 +72,10 @@ error_code_t interpreter::version_0_type_dispatcher(size_t block_height, transac
     auto type = source.read_2_bytes_big_endian();
     if ( ! source) return error::invalid_type;
 
-    switch (type) {
-        case 0x00:      //TODO(fernando): enum, create asset 
+    switch (static_cast<message_type_t>(type)) {
+        case message_type_t::create_asset:
             return process_create_asset_version_0(block_height, tx, source);
-        case 0x01:
+        case message_type_t::send_tokens:
             return process_send_tokens_version_0(block_height, tx, source);
     }
     return error::not_recognized_type;

@@ -33,6 +33,16 @@
 namespace bitprim {
 namespace keoken {
 
+enum class version_t {
+    zero = 0
+};
+
+enum class message_type_t {
+    create_asset = 0,
+    send_tokens = 1
+};
+
+
 class interpreter {
 public:
     explicit
