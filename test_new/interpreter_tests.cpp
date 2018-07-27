@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016-2018 Bitprim Inc.
+ * Copyright (c) 2018 Bitprim developers (see AUTHORS)
  *
  * This file is part of Bitprim.
  *
@@ -17,6 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */ 
 
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
+
+#include <bitprim/keoken/state.hpp>
+#include <bitprim/keoken/interpreter.hpp>
+
+using namespace bitprim::keoken;
+using libbitcoin::hash_digest;
+using libbitcoin::hash_literal;
+using libbitcoin::wallet::payment_address;
+
+TEST_CASE("[interpreter] ") {
+
+
+}
 

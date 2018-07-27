@@ -466,12 +466,16 @@ endif()
 
 if (WITH_TESTS_NEW)
   if (WITH_KEOKEN)
+    
     add_executable(bitprim_blockchain_test_new
-      test_new/main.cpp
+          test_new/main.cpp
+          test_new/state_tests.cpp
+          test_new/interpreter_tests.cpp
     )
     
     target_link_libraries(bitprim_blockchain_test_new PUBLIC bitprim-blockchain)
     add_test(NAME bitprim_blockchain_test_new COMMAND bitprim_blockchain_test_new)
+    
   endif()
 endif()
 
