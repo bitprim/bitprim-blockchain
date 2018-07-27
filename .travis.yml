@@ -197,7 +197,7 @@ jobs:
         - ls -ltra
         - mkdir build
         - cd build
-        - conan install ..
+        - conan install .. -o keoken=True
         # - cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DENABLE_TESTS=OFF -DWITH_TESTS=OFF -DWITH_TOOLS=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" ${BOOST_OPTS}
         # - cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DENABLE_TESTS=OFF -DWITH_TESTS=OFF -DWITH_TOOLS=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE
         # - cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON                 -DENABLE_TESTS=OFF -DWITH_TESTS=OFF -DWITH_TOOLS=OFF -DCMAKE_BUILD_TYPE=Release

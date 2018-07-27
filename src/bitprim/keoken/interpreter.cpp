@@ -105,7 +105,7 @@ error_code_t interpreter::process_create_asset_version_0(size_t block_height, tr
         return error::invalid_asset_amount;
     }
 
-    auto const owner = get_first_input_addr(tx);
+    auto owner = get_first_input_addr(tx);
     if ( ! owner) {
         return error::invalid_asset_creator;
     }
