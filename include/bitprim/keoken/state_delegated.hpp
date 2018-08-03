@@ -30,7 +30,7 @@
 // #include <bitprim/keoken/message/create_asset.hpp>
 // #include <bitprim/keoken/message/send_tokens.hpp>
 // #include <bitprim/keoken/primitives.hpp>
-// #include <bitprim/keoken/state_dto.hpp>
+#include <bitprim/keoken/state_dto.hpp>
 
 namespace bitprim {
 namespace keoken {
@@ -50,15 +50,11 @@ struct state_delegated {
     using get_assets_func = std::function<get_assets_list()>;
     using get_all_asset_addresses_func = std::function<get_all_asset_addresses_list()>;
 
-    // explicit
-    // state_delegated(asset_id_t asset_id_initial);
-
     state_delegated() = default;
 
-
     // non-copyable class
-    state_delegated(state const&) = delete;
-    state_delegated operator=(state const&) = delete;
+    state_delegated(state_delegated const&) = delete;
+    state_delegated operator=(state_delegated const&) = delete;
 
     // Commands.
     // ---------------------------------------------------------------------------------
@@ -84,15 +80,15 @@ void bind_to_state(State& st, state_delegated& st_del) {
     using std::placeholders::_5;
     using std::placeholders::_6;
 
-    st_del.set_initial_asset_id = std::bind(&state::set_initial_asset_id, &st, _1);
-    st_del.create_asset         = std::bind(&state::create_asset, &st, _1, _2, _3, _4, _5);
-    st_del.create_balance_entry = std::bind(&state::create_balance_entry, &st, _1, _2, _3, _4, _5, _6);
+    st_del.set_initial_asset_id = std::bind(&State::set_initial_asset_id, &st, _1);
+    st_del.create_asset         = std::bind(&State::create_asset, &st, _1, _2, _3, _4, _5);
+    st_del.create_balance_entry = std::bind(&State::create_balance_entry, &st, _1, _2, _3, _4, _5, _6);
 
-    st_del.asset_id_exists         = std::bind(&state::asset_id_exists, &st, _1);
-    st_del.get_balance             = std::bind(&state::get_balance, &st, _1, _2);
-    st_del.get_assets_by_address   = std::bind(&state::get_assets_by_address, &st, _1);
-    st_del.get_assets              = std::bind(&state::get_assets, &st);
-    st_del.get_all_asset_addresses = std::bind(&state::get_all_asset_addresses, &st);
+    st_del.asset_id_exists         = std::bind(&State::asset_id_exists, &st, _1);
+    st_del.get_balance             = std::bind(&State::get_balance, &st, _1, _2);
+    st_del.get_assets_by_address   = std::bind(&State::get_assets_by_address, &st, _1);
+    st_del.get_assets              = std::bind(&State::get_assets, &st);
+    st_del.get_all_asset_addresses = std::bind(&State::get_all_asset_addresses, &st);
 }
 
 } // namespace keoken
