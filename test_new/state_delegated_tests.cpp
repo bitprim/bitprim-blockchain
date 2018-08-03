@@ -32,7 +32,7 @@ TEST_CASE("[state_delegated_asset_id_exists_empty] ") {
 
     state_delegated state_;
     state st;
-    bind_to_memory_state(st, state_);
+    bind_to_state(st, state_);
     state_.set_initial_asset_id(0);
 
     REQUIRE( ! state_.asset_id_exists(0));
@@ -43,7 +43,7 @@ TEST_CASE("[state_delegated_asset_id_exists_not_empty] ") {
 
     state_delegated state_;
     state st;
-    bind_to_memory_state(st, state_);
+    bind_to_state(st, state_);
     state_.set_initial_asset_id(0);
 
     std::string name = "Test";
@@ -61,7 +61,7 @@ TEST_CASE("[state_delegated_get_assets_empty] ") {
 
     state_delegated state_;
     state st;
-    bind_to_memory_state(st, state_);
+    bind_to_state(st, state_);
     state_.set_initial_asset_id(1);
 
     auto const& ret = state_.get_assets();
@@ -73,7 +73,7 @@ TEST_CASE("[state_delegated_get_assets_not_empty] ") {
 
     state_delegated state_;
     state st;
-    bind_to_memory_state(st, state_);
+    bind_to_state(st, state_);
     state_.set_initial_asset_id(0);
 
 
@@ -100,7 +100,7 @@ TEST_CASE("[state_delegated_create_asset] ") {
 
     state_delegated state_;
     state st;
-    bind_to_memory_state(st, state_);
+    bind_to_state(st, state_);
     state_.set_initial_asset_id(0);
 
     std::string name = "Test";
@@ -129,7 +129,7 @@ TEST_CASE("[state_delegated_create_balance_entry] ") {
 
     state_delegated state_;
     state st;
-    bind_to_memory_state(st, state_);
+    bind_to_state(st, state_);
     state_.set_initial_asset_id(0);
 
     std::string name = "Test";
@@ -158,7 +158,7 @@ TEST_CASE("[state_delegated_get_assets_by_address] ") {
 
     state_delegated state_;
     state st;
-    bind_to_memory_state(st, state_);
+    bind_to_state(st, state_);
     state_.set_initial_asset_id(0);
 
     std::string name = "Test";
@@ -199,7 +199,7 @@ TEST_CASE("[state_delegated_get_all_asset_addresses] ") {
 
     state_delegated state_;
     state st;
-    bind_to_memory_state(st, state_);
+    bind_to_state(st, state_);
     state_.set_initial_asset_id(0);
 
 

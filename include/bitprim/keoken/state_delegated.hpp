@@ -75,7 +75,8 @@ struct state_delegated {
     get_all_asset_addresses_func get_all_asset_addresses;
 };
 
-void bind_to_memory_state(state& st, state_delegated& st_del) {
+template <typename State>
+void bind_to_state(State& st, state_delegated& st_del) {
     using std::placeholders::_1;
     using std::placeholders::_2;
     using std::placeholders::_3;
