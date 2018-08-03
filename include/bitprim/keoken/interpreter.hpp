@@ -51,11 +51,9 @@ struct find_type {
     template <size_t I, size_t... Is>
     constexpr 
     bool call_impl(bitprim::index_sequence<I, Is...>) const {
-        if (x == bitprim::tuple_element_t<I, T>::message_type) {
-            return true;
-        } else {
-            return call_impl(bitprim::index_sequence<Is...>{});
-        }
+        return (x == bitprim::tuple_element_t<I, T>::message_type) ? 
+                true :
+                call_impl(bitprim::index_sequence<Is...>{});
     }
 
     constexpr 
@@ -77,15 +75,10 @@ struct no_repeated_types {
     template <size_t I, size_t... Is>
     constexpr 
     bool call_impl(bitprim::index_sequence<I, Is...>) const {
-        constexpr auto type_num = bitprim::tuple_element_t<I, T>::message_type;
         using idxs_t = bitprim::index_sequence<Is...>;
-
-        bool res = find_type<T, type_num>{}.call_impl(idxs_t{});
-        if (res) {
-            return false;
-        } else {
-            return call_impl(idxs_t{});
-        }
+        return find_type<T, bitprim::tuple_element_t<I, T>::message_type>{}.call_impl(idxs_t{}) ?
+            false :
+            call_impl(idxs_t{});
     }
 
     constexpr
@@ -104,13 +97,13 @@ template <typename T>
 struct dispatcher {
     template <typename State, typename Fastchain, size_t... Is>
     constexpr 
-    auto call_impl(message_type_t, State&, Fastchain const&, size_t, bc::chain::transaction const&, bc::reader&, bitprim::index_sequence<Is...>) const {
+    error::error_code_t call_impl(message_type_t, State&, Fastchain const&, size_t, bc::chain::transaction const&, bc::reader&, bitprim::index_sequence<Is...>) const {
         return error::not_recognized_type;
     }
 
     template <typename State, typename Fastchain, size_t I, size_t... Is>
     constexpr 
-    auto call_impl(message_type_t mt, State& state, Fastchain const& fast_chain, size_t block_height, bc::chain::transaction const& tx, bc::reader& source, bitprim::index_sequence<I, Is...>) const {
+    error::error_code_t call_impl(message_type_t mt, State& state, Fastchain const& fast_chain, size_t block_height, bc::chain::transaction const& tx, bc::reader& source, bitprim::index_sequence<I, Is...>) const {
         using msg_t = bitprim::tuple_element_t<I, T>;
         using idxs_t = bitprim::index_sequence<Is...>;
         return mt == msg_t::message_type 
@@ -120,7 +113,7 @@ struct dispatcher {
 
     template <typename State, typename Fastchain>
     constexpr 
-    auto operator()(message_type_t mt, State& state, Fastchain const& fast_chain, size_t block_height, bc::chain::transaction const& tx, bc::reader& source) const {
+    error::error_code_t operator()(message_type_t mt, State& state, Fastchain const& fast_chain, size_t block_height, bc::chain::transaction const& tx, bc::reader& source) const {
         static_assert(detail::no_repeated_types<T>{}(), "repeated transaction types in transaction list");
         using idxs_t = bitprim::make_index_sequence<std::tuple_size<T>::value>;
         return call_impl(mt, state, fast_chain, block_height, tx, source, idxs_t{});

@@ -24,20 +24,15 @@
 #include <tuple>
 
 // For Transitioning from C++11 to C++14
-#if __cpp_lib_tuple_element_t == 201304
+#if __cpp_lib_tuple_element_t == 201402
 
 namespace bitprim {
-
-#error "__cpp_lib_tuple_element_t == 201304"
 
 using std::tuple_element_t;
 
 } // namespace bitprim
 
 #else 
-
-#error "__cpp_lib_tuple_element_t != 201304"
-
 
 namespace bitprim {
 
@@ -46,6 +41,6 @@ using tuple_element_t = typename std::tuple_element<I, T>::type;
 
 } // namespace bitprim
 
-#endif  // __cpp_lib_tuple_element_t == 201304
+#endif  // __cpp_lib_tuple_element_t == 201402
 
 #endif //BITPRIM_UTILITY_TUPLE_ELEMENT_HPP_
