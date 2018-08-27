@@ -115,7 +115,7 @@ class BitprimBlockchainConan(BitprimConanFile):
         self.options["*"].mining = self.options.mining
         self.options["*"].currency = self.options.currency
         self.output.info("Compiling for currency: %s" % (self.options.currency,))
-        self.output.info("Compiling with mining improvements: %s" % (self.options.mining,))
+        self.output.info("Compiling with mining optimizations: %s" % (self.options.mining,))
 
     def package_id(self):
         self.info.options.with_tests = "ANY"
