@@ -87,7 +87,7 @@ struct rollback_pred {
 
     template <typename Entry>
     bool operator()(Entry const& entry) const {
-        return entry.block_height > height;
+        return entry.block_height >= height;
     }
 };
 
