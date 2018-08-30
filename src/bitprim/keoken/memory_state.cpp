@@ -100,7 +100,7 @@ void memory_state::rollback_to(size_t height) {
         std::remove_if(begin(asset_list_), end(asset_list_), rollback_pred{height}), 
     end(asset_list_));
 
-    asset_id_next_ = asset_list_.empty() ? asset_id_initial_ : asset_list_.back().asset.id();
+    asset_id_next_ = asset_list_.empty() ? asset_id_initial_ : asset_list_.back().asset.id() + 1;
 }
 
 
