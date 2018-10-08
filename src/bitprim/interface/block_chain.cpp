@@ -93,7 +93,7 @@ void block_chain::convert_to_keo_transaction(const libbitcoin::hash_digest& hash
                   size_t height) {
                   if (ec == libbitcoin::error::success) {
                       auto keoken_data = bitprim::keoken::first_keoken_output(*tx_ptr);
-                      if(!keoken_data.empty()) {
+                      if (!keoken_data.empty()) {
                           (*keoken_txs).push_back(tx_ptr);
                       }
                   }
@@ -118,11 +118,11 @@ void block_chain::fetch_keoken_history(const short_hash& address_hash, size_t li
     auto history_compact_list =  database_.history().get(address_hash, limit, from_height);
 
     for (const auto & history : history_compact_list) {
-        if((*keoken_txs).empty()){
+        if ((*keoken_txs).empty()) {
             convert_to_keo_transaction(history.point.hash(), keoken_txs);
         }
         else
-            if(history.point.hash() != keoken_txs->back()->hash()) {
+            if (history.point.hash() != keoken_txs->back()->hash()) {
                 convert_to_keo_transaction(history.point.hash(), keoken_txs);
             }
     }
@@ -175,7 +175,7 @@ void block_chain::fetch_block_keoken(const hash_digest& hash, bool witness,
         BITCOIN_ASSERT(tx_result.position() == position++);
         const libbitcoin::chain::transaction& tx_ptr = tx_result.transaction(witness);
         auto keoken_data = bitprim::keoken::first_keoken_output(tx_ptr);
-        if(!keoken_data.empty()) {
+        if (!keoken_data.empty()) {
             (*keoken_txs).push_back(std::make_shared<const libbitcoin::message::transaction>(tx_result.transaction(witness)));
         }
     }
